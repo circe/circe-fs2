@@ -36,5 +36,5 @@ limitations under the License.
 [circe]: https://github.com/circe/circe
 [code-of-conduct]: http://typelevel.org/conduct.html
 [contributing]: https://circe.github.io/circe/contributing.html
-[fs2]: https://github.com/functional-streams-in-scala/fs2-core
+[fs2]: https://github.com/functional-streams-for-scala/fs2
 [typelevel]: http://typelevel.org/
