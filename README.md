@@ -8,8 +8,7 @@
 This project provides support for using [fs2][fs2] for streaming JSON parsing and decoding with
 [circe][circe], a Scala library for encoding and decoding JSON to Scala types.
 
-There's not a lot of documentation, but the API is fairly minimal, and we do publish the
-[API docs][api-docs].
+There's not a lot of documentation, but the API is fairly minimal.
 
 ## Contributors and participation
 

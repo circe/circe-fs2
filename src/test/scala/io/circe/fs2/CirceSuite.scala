@@ -2,7 +2,6 @@ package io.circe.fs2
 
 import cats.instances.AllInstances
 import cats.syntax.{ AllSyntax, EitherOps }
-import io.circe.Json
 import io.circe.testing.{ ArbitraryInstances, EqInstances }
 import org.scalatest.FlatSpec
 import org.scalatest.prop.{ Checkers, GeneratorDrivenPropertyChecks }

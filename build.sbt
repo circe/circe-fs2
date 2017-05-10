@@ -1,5 +1,3 @@
-import com.typesafe.sbt.SbtGhPages.GhPagesKeys._
-
 organization in ThisBuild := "io.circe"
 
 val compilerOptions = Seq(
@@ -35,6 +33,8 @@ val baseSettings = Seq(
 
 val allSettings = baseSettings ++ publishSettings
 
+val docMappingsApiDir = settingKey[String]("Subdirectory in site target directory for API docs")
+
 val fs2 = project.in(file("."))
   .settings(allSettings)
   .settings(
@@ -45,7 +45,10 @@ val fs2 = project.in(file("."))
       "io.circe" %% "circe-generic" % circeVersion % "test",
       "io.circe" %% "circe-jawn" % circeVersion,
       "io.circe" %% "circe-testing" % circeVersion % "test"
-    )
+    ),
+    ghpagesNoJekyll := true,
+    docMappingsApiDir := "api",
+    addMappingsToSiteDir(mappings in (Compile, packageDoc), docMappingsApiDir)
   )
 
 lazy val publishSettings = Seq(
@@ -63,8 +66,10 @@ lazy val publishSettings = Seq(
     else
       Some("releases"  at nexus + "service/local/staging/deploy/maven2")
   },
+  /* Someday maybe Scaladoc will actually work on package object-only projects.
   autoAPIMappings := true,
   apiURL := Some(url("https://circe.github.io/circe-fs2/api/")),
+  */
   scmInfo := Some(
     ScmInfo(
       url("https://github.com/circe/circe-fs2"),
