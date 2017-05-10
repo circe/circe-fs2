@@ -36,6 +36,7 @@ val baseSettings = Seq(
 val allSettings = baseSettings ++ publishSettings
 
 val fs2 = project.in(file("."))
+  .settings(allSettings)
   .settings(
     moduleName := "circe-fs2",
     mimaPreviousArtifacts := Set("io.circe" %% "circe-fs2" % previousCirceSprayVersion),
@@ -50,7 +51,7 @@ val fs2 = project.in(file("."))
 lazy val publishSettings = Seq(
   releaseCrossBuild := true,
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
-  homepage := Some(url("https://github.com/circe/circe-spray")),
+  homepage := Some(url("https://github.com/circe/circe-fs2")),
   licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
   publishMavenStyle := true,
   publishArtifact in Test := false,
@@ -63,7 +64,7 @@ lazy val publishSettings = Seq(
       Some("releases"  at nexus + "service/local/staging/deploy/maven2")
   },
   autoAPIMappings := true,
-  apiURL := Some(url("https://circe.github.io/circe/api/")),
+  apiURL := Some(url("https://circe.github.io/circe-fs2/api/")),
   scmInfo := Some(
     ScmInfo(
       url("https://github.com/circe/circe-fs2"),
