@@ -8,4 +8,3 @@ target/
 .project
 .classpath
 tmp/
-docs/src/main/tut/contributing.md
