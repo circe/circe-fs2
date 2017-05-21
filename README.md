@@ -31,7 +31,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 [apache]: http://www.apache.org/licenses/LICENSE-2.0
-[api-docs]: https://circe.github.io/circe-fs2/api/io/circe/jackson/
 [circe]: https://github.com/circe/circe
 [code-of-conduct]: http://typelevel.org/conduct.html
 [contributing]: https://circe.github.io/circe/contributing.html
