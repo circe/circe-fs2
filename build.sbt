@@ -15,8 +15,8 @@ val compilerOptions = Seq(
 )
 
 val circeVersion = "0.8.0"
-val fs2Version = "0.9.5"
-val previousCirceSprayVersion = "0.7.1"
+val fs2Version = "0.9.6"
+val previousCirceFs2Version = "0.8.0"
 
 val baseSettings = Seq(
   scalacOptions ++= compilerOptions,
@@ -39,7 +39,7 @@ val fs2 = project.in(file("."))
   .settings(allSettings)
   .settings(
     moduleName := "circe-fs2",
-    mimaPreviousArtifacts := Set("io.circe" %% "circe-fs2" % previousCirceSprayVersion),
+    mimaPreviousArtifacts := Set("io.circe" %% "circe-fs2" % previousCirceFs2Version),
     libraryDependencies ++= Seq(
       "co.fs2" %% "fs2-core" % fs2Version,
       "io.circe" %% "circe-generic" % circeVersion % "test",
