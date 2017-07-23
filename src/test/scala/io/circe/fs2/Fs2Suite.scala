@@ -24,8 +24,15 @@ class Fs2Suite extends CirceSuite {
     assert(stream.through(stringParser).runLog.unsafeAttemptRun === Right(foos.toVector))
   }
 
-  "byteParser" should "parse enumerated bytes" in forAll { (fooStdStream: StdStream[Foo], fooVector: Vector[Foo]) =>
+  "byteParserC" should "parse enumerated bytes" in forAll { (fooStdStream: StdStream[Foo], fooVector: Vector[Foo]) =>
     val stream = serializeFoos(fooStream(fooStdStream, fooVector)).through(text.utf8EncodeC)
+    val foos = (fooStdStream ++ fooVector).map(_.asJson)
+
+    assert(stream.through(byteParserC).runLog.unsafeAttemptRun === Right(foos.toVector))
+  }
+
+  "byteParser" should "parse enumerated bytes" in forAll { (fooStdStream: StdStream[Foo], fooVector: Vector[Foo]) =>
+    val stream = serializeFoos(fooStream(fooStdStream, fooVector)).through(text.utf8Encode)
     val foos = (fooStdStream ++ fooVector).map(_.asJson)
 
     assert(stream.through(byteParser).runLog.unsafeAttemptRun === Right(foos.toVector))
@@ -46,10 +53,18 @@ class Fs2Suite extends CirceSuite {
     assert(result.isLeft && result.left.get.isInstanceOf[ParsingFailure])
   }
 
+  "byteParserC" should "return ParsingFailure" in
+  forAll { (stringStdStream: StdStream[String], stringVector: Vector[String]) =>
+    val result = Stream("}").append(stringStream(stringStdStream, stringVector))
+      .through(text.utf8EncodeC).through(byteParserC)
+      .runLog.unsafeAttemptRun
+    assert(result.isLeft && result.left.get.isInstanceOf[ParsingFailure])
+  }
+
   "byteParser" should "return ParsingFailure" in
   forAll { (stringStdStream: StdStream[String], stringVector: Vector[String]) =>
     val result = Stream("}").append(stringStream(stringStdStream, stringVector))
-      .through(text.utf8EncodeC).through(byteParser)
+      .through(text.utf8Encode).through(byteParser)
       .runLog.unsafeAttemptRun
     assert(result.isLeft && result.left.get.isInstanceOf[ParsingFailure])
   }
