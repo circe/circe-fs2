@@ -46,8 +46,8 @@ representation of JSONs:
 
 ```scala
 import io.circe.fs2._
-val stringStream: Stream[Task, String] = ...
-val parsedStream: Stream[Task, Json] = stringStream.through(stringArrayParser)
+val stringStream: Stream[IO, String] = ...
+val parsedStream: Stream[IO, Json] = stringStream.through(stringArrayParser)
 ```
 
 ## Decoding
@@ -59,12 +59,9 @@ For example, using Circe's fully automatic derivation:
 
 ```scala
 import io.circe.generic.auto._
-
 case class Foo(a: Int, b: String)
-
-val parsedStream: Stream[Task, Json] = ...
-
-val decodedStream: Stream[Task, Foo] = parsedStream.through(decoder[Task, Foo])
+val parsedStream: Stream[IO, Json] = ...
+val decodedStream: Stream[IO, Foo] = parsedStream.through(decoder[IO, Foo])
 ```
 
 ## Contributors and participation

@@ -1,7 +1,6 @@
 package io.circe
 
 import _root_.fs2.{ Chunk, Pipe, Stream }
-import _root_.fs2.pipe
 import _root_.jawn.{ AsyncParser, ParseException }
 import io.circe.jawn.CirceSupportParser
 
@@ -32,7 +31,7 @@ package object fs2 {
     protected[this] val parsingMode: AsyncParser.Mode = mode
   }
 
-  final def byteParser[F[_]](mode: AsyncParser.Mode): Pipe[F, Byte, Json] = _.through(pipe.chunks).through(byteParserC(mode))
+  final def byteParser[F[_]](mode: AsyncParser.Mode): Pipe[F, Byte, Json] = _.chunks.through(byteParserC(mode))
 
   final def decoder[F[_], A](implicit decode: Decoder[A]): Pipe[F, Json, A] =
     _.flatMap { json =>

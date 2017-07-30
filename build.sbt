@@ -15,7 +15,7 @@ val compilerOptions = Seq(
 )
 
 val circeVersion = "0.9.0-M1"
-val fs2Version = "0.9.7"
+val fs2Version = "0.10.0-M6"
 val previousCirceFs2Version = "0.8.0"
 
 val baseSettings = Seq(
@@ -42,8 +42,8 @@ val fs2 = project.in(file("."))
     mimaPreviousArtifacts := Set("io.circe" %% "circe-fs2" % previousCirceFs2Version),
     libraryDependencies ++= Seq(
       "co.fs2" %% "fs2-core" % fs2Version,
-      "io.circe" %% "circe-generic" % circeVersion % "test",
       "io.circe" %% "circe-jawn" % circeVersion,
+      "io.circe" %% "circe-generic" % circeVersion % "test",
       "io.circe" %% "circe-testing" % circeVersion % "test"
     ),
     ghpagesNoJekyll := true,
