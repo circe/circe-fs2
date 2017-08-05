@@ -8,7 +8,58 @@
 This project provides support for using [fs2][fs2] for streaming JSON parsing and decoding with
 [circe][circe], a Scala library for encoding and decoding JSON to Scala types.
 
-There's not a lot of documentation, but the API is fairly minimal.
+## Parsing
+
+Circe-fs2 provides three pipes to parse your streams of JSONs:
+
+### stringParser: `Stream[F[_], String] => Stream[F[_], Json]`
+
+`stringParser` converts a stream of `String` to a stream of `Json`, Circe's representation of JSONs:
+
+```scala
+import io.circe.fs2._
+
+val stringStream: Stream[Task, String] = ...
+
+val parsedStream: Stream[Task, Json] = stringStream.through(stringParser)
+```
+
+### byteParser: `Stream[F[_], Byte] => Stream[F[_], Json]`
+
+`byteParser` converts a stream of `Byte` to a stream of `Json`:
+
+```scala
+val byteStream: Stream[Task, Byte] = ...
+
+val parsedStream: Stream[Task, Json] = byteStream.through(byteParser)
+```
+
+### byteParserC: `Stream[F[_], Chunk[Byte]] => Stream[F[_], Json]`
+
+`byteParserC` converts a chunked stream of `Byte` to a stream of `Json`:
+
+```scala
+val chunkedByteStream: Stream[Task, Chunk[Byte]] = ...
+
+val parsedStream: Stream[Task, Json] = chunkedByteStream.through(byteParserC)
+```
+
+## Decoding
+
+Circe-fs2 also comes with a `decoder` pipe which, given a `Decoder[A]`, produces a
+`Stream[F[_], Json] => Stream[F[_], A]` pipe.
+
+For example, using Circe's fully automatic derivation:
+
+```scala
+import io.circe.generic.auto._
+
+case class Foo(a: Int, b: String)
+
+val parsedStream: Stream[Task, Json] = ...
+
+val decodedStream: Stream[Task, Foo] = parsedStream.through(decoder[Task, Foo])
+```
 
 ## Contributors and participation
 
