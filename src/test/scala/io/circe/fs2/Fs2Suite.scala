@@ -45,6 +45,13 @@ class Fs2Suite extends CirceSuite {
     assert(stream.through(stringParser).through(decoder[Task, Foo]).runLog.unsafeAttemptRun === Right(foos.toVector))
   }
 
+  "encoder" should "encode enumerated Foo values" in forAll { (fooStdStream: StdStream[Foo], fooVector: Vector[Foo]) =>
+    val stream = fooStream(fooStdStream, fooVector)
+    val foos = (fooStdStream ++ fooVector).map(_.asJson)
+
+    assert(stream.through(encoder[Task, Foo]).runLog.unsafeAttemptRun == Right(foos.toVector))
+  }
+
   "stringParser" should "return ParsingFailure" in
   forAll { (stringStdStream: StdStream[String], stringVector: Vector[String]) =>
     val result = Stream("}").append(stringStream(stringStdStream, stringVector))
