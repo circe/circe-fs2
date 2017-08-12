@@ -25,4 +25,7 @@ package object fs2 {
         case Right(a) => Stream.emit(a)
       }
     }
+
+  final def encoder[F[_], A](implicit encode: Encoder[A]): Pipe[F, A, Json] =
+    _.map(encode(_))
 }

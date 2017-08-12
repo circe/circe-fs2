@@ -46,7 +46,7 @@ val parsedStream: Stream[Task, Json] = chunkedByteStream.through(byteParserC)
 
 ## Decoding
 
-Circe-fs2 also comes with a `decoder` pipe which, given a `Decoder[A]`, produces a
+Circe-fs2 comes with a `decoder` pipe which, given a `Decoder[A]`, produces a
 `Stream[F[_], Json] => Stream[F[_], A]` pipe.
 
 For example, using Circe's fully automatic derivation:
@@ -59,6 +59,17 @@ case class Foo(a: Int, b: String)
 val parsedStream: Stream[Task, Json] = ...
 
 val decodedStream: Stream[Task, Foo] = parsedStream.through(decoder[Task, Foo])
+```
+
+## Encoding
+
+It is also possible to go the other way around through the `encoder` pipe which, given an
+`Encoder[A]`, produces a `Stream[F[_], A] => Stream[F[_], Json]` pipe.
+
+Continuing with the previous example:
+
+```scala
+val encodedStream: Stream[Task, Json] = decodedStream.through(encoder[Task, Foo])
 ```
 
 ## Contributors and participation
