@@ -6,9 +6,11 @@ import io.circe.{ Json, ParsingFailure }
 import io.circe.jawn.CirceSupportParser
 
 private[fs2] abstract class ParsingPipe[F[_], S] extends Pipe[F, S, Json] {
+  protected[this] def parsingMode: AsyncParser.Mode
+  
   protected[this] def parseWith(parser: AsyncParser[Json])(in: S): Either[ParseException, Seq[Json]]
 
-  private[this] final def makeParser: AsyncParser[Json] = CirceSupportParser.async(mode = AsyncParser.UnwrapArray)
+  private[this] final def makeParser: AsyncParser[Json] = CirceSupportParser.async(mode = parsingMode)
 
   private[this] final def doneOrLoop[A](p: AsyncParser[Json])(h: Handle[F, S]): Pull[F, Json, Unit] =
     h.receive1 {

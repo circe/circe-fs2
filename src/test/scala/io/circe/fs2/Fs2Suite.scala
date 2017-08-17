@@ -1,85 +1,114 @@
 package io.circe.fs2
 
-import _root_.fs2.{ Stream, Task, text }
-import io.circe.{ DecodingFailure, ParsingFailure }
+import _root_.fs2.{Pipe, Stream, Task, pipe, text}
+import io.circe.{DecodingFailure, Json, ParsingFailure}
 import io.circe.fs2.examples._
 import io.circe.generic.auto._
 import io.circe.syntax._
-import scala.collection.immutable.{ Stream => StdStream }
+import jawn.AsyncParser
+import scala.collection.immutable.{Stream => StdStream}
 
 class Fs2Suite extends CirceSuite {
   def fooStream(fooStdStream: StdStream[Foo], fooVector: Vector[Foo]): Stream[Task, Foo] =
     Stream.emits(fooStdStream).append(Stream.emits(fooVector))
-
-  def serializeFoos(foos: Stream[Task, Foo]): Stream[Task, String] =
-    Stream("[").append(foos.map((_: Foo).asJson.spaces2).intersperse(", ")).append(Stream("]"))
-
+  
+  def serializeFoos(parsingMode: AsyncParser.Mode, foos: Stream[Task, Foo]): Stream[Task, String] =
+    parsingMode match {
+      case AsyncParser.ValueStream =>
+        foos.map((_: Foo).asJson.spaces2).intersperse("\n")
+      case AsyncParser.UnwrapArray =>
+        Stream("[").append(foos.map((_: Foo).asJson.spaces2).intersperse(", ")).append(Stream("]"))
+      case _ => ???
+    }
+  
   def stringStream(stringStdStream: StdStream[String], stringVector: Vector[String]): Stream[Task, String] =
     Stream.emits(stringStdStream).append(Stream.emits(stringVector))
 
-  "stringParser" should "parse lines stream" in forAll { (fooStdStream: StdStream[Foo], fooVector: Vector[Foo]) =>
-    val stream = serializeFoos(fooStream(fooStdStream, fooVector))
-    val foos = (fooStdStream ++ fooVector).map(_.asJson)
-
-    assert(stream.through(stringParser).runLog.unsafeAttemptRun === Right(foos.toVector))
+  "stringArrayParser" should "parse values wrapped in array" in {
+    testParser(AsyncParser.UnwrapArray, stringArrayParser)
   }
 
-  "byteParserC" should "parse enumerated bytes" in forAll { (fooStdStream: StdStream[Foo], fooVector: Vector[Foo]) =>
-    val stream = serializeFoos(fooStream(fooStdStream, fooVector)).through(text.utf8EncodeC)
-    val foos = (fooStdStream ++ fooVector).map(_.asJson)
-
-    assert(stream.through(byteParserC).runLog.unsafeAttemptRun === Right(foos.toVector))
+  "stringStreamParser" should "parse values delimeted by new lines" in {
+    testParser(AsyncParser.ValueStream, stringStreamParser)
+  }
+  
+  "byteArrayParser" should "parse bytes wrapped in array" in {
+    testParser(AsyncParser.UnwrapArray, _.through(text.utf8Encode).through(byteArrayParser))
   }
 
-  "byteParser" should "parse enumerated bytes" in forAll { (fooStdStream: StdStream[Foo], fooVector: Vector[Foo]) =>
-    val stream = serializeFoos(fooStream(fooStdStream, fooVector)).through(text.utf8Encode)
-    val foos = (fooStdStream ++ fooVector).map(_.asJson)
-
-    assert(stream.through(byteParser).runLog.unsafeAttemptRun === Right(foos.toVector))
+  "byteStreamParser" should "parse bytes delimeted by new lines" in {
+    testParser(AsyncParser.ValueStream, _.through(text.utf8Encode).through(byteStreamParser))
   }
 
-  "decoder" should "decode enumerated JSON values" in forAll { (fooStdStream: StdStream[Foo], fooVector: Vector[Foo]) =>
-    val stream = serializeFoos(fooStream(fooStdStream, fooVector))
-    val foos = fooStdStream ++ fooVector
-
-    assert(stream.through(stringParser).through(decoder[Task, Foo]).runLog.unsafeAttemptRun === Right(foos.toVector))
+  "byteArrayParserC" should "parse bytes wrapped in array" in {
+    testParser(AsyncParser.UnwrapArray, _.through(text.utf8Encode).through(pipe.chunks).through(byteArrayParserC))
   }
 
-  "stringParser" should "return ParsingFailure" in
-  forAll { (stringStdStream: StdStream[String], stringVector: Vector[String]) =>
-    val result = Stream("}").append(stringStream(stringStdStream, stringVector))
-      .through(stringParser)
-      .runLog.unsafeAttemptRun
-    assert(result.isLeft && result.left.get.isInstanceOf[ParsingFailure])
+  "byteStreamParserC" should "parse bytes delimeted by new lines" in {
+    testParser(AsyncParser.ValueStream, _.through(text.utf8Encode).through(pipe.chunks).through(byteStreamParserC))
   }
 
-  "byteParserC" should "return ParsingFailure" in
-  forAll { (stringStdStream: StdStream[String], stringVector: Vector[String]) =>
-    val result = Stream("}").append(stringStream(stringStdStream, stringVector))
-      .through(text.utf8EncodeC).through(byteParserC)
-      .runLog.unsafeAttemptRun
-    assert(result.isLeft && result.left.get.isInstanceOf[ParsingFailure])
+  "decoder" should "decode enumerated JSON values" in 
+    forAll { (fooStdStream: StdStream[Foo], fooVector: Vector[Foo]) =>
+      val stream = serializeFoos(AsyncParser.UnwrapArray, fooStream(fooStdStream, fooVector))
+      val foos = fooStdStream ++ fooVector
+  
+      assert(stream.through(stringArrayParser).through(decoder[Task, Foo]).runLog.unsafeAttemptRun === Right(foos.toVector))
+    }
+
+  "stringArrayParser" should "return ParsingFailure" in {
+    testParsingFailure(_.through(stringArrayParser))
   }
 
-  "byteParser" should "return ParsingFailure" in
-  forAll { (stringStdStream: StdStream[String], stringVector: Vector[String]) =>
-    val result = Stream("}").append(stringStream(stringStdStream, stringVector))
-      .through(text.utf8Encode).through(byteParser)
-      .runLog.unsafeAttemptRun
-    assert(result.isLeft && result.left.get.isInstanceOf[ParsingFailure])
+  "stringStreamParser" should "return ParsingFailure" in {
+    testParsingFailure(_.through(stringStreamParser))
+  }
+
+  "byteArrayParser" should "return ParsingFailure" in {
+    testParsingFailure(_.through(text.utf8Encode).through(byteArrayParser))
+  }
+
+  "byteStreamParser" should "return ParsingFailure" in {
+    testParsingFailure(_.through(text.utf8Encode).through(byteStreamParser))
+  }
+
+  "byteArrayParserC" should "return ParsingFailure" in {
+    testParsingFailure(_.through(text.utf8Encode).through(pipe.chunks).through(byteArrayParserC))
+  }
+
+  "byteStreamParserC" should "return ParsingFailure" in {
+    testParsingFailure(_.through(text.utf8Encode).through(pipe.chunks).through(byteStreamParserC))
   }
 
   "decoder" should "return DecodingFailure" in
-  forAll { (fooStdStream: StdStream[Foo], fooVector: Vector[Foo]) =>
-    sealed trait Foo2
-    case class Bar2(x: String) extends Foo2
+    forAll { (fooStdStream: StdStream[Foo], fooVector: Vector[Foo]) =>
+      sealed trait Foo2
+      case class Bar2(x: String) extends Foo2
+  
+      whenever(fooStdStream.nonEmpty && fooVector.nonEmpty) {
+        val result = serializeFoos(AsyncParser.UnwrapArray, fooStream(fooStdStream, fooVector))
+          .through(stringArrayParser).through(decoder[Task, Foo2])
+          .runLog.unsafeAttemptRun
+  
+        assert(result.isLeft && result.left.get.isInstanceOf[DecodingFailure])
+      }
+    }
 
-    whenever(fooStdStream.nonEmpty && fooVector.nonEmpty) {
-      val result = serializeFoos(fooStream(fooStdStream, fooVector))
-        .through(stringParser).through(decoder[Task, Foo2])
+  private def testParser(mode: AsyncParser.Mode, through: Pipe[Task, String, Json]) = {
+    forAll { (fooStdStream: StdStream[Foo], fooVector: Vector[Foo]) =>
+      val stream = serializeFoos(mode, fooStream(fooStdStream, fooVector))
+      val foos = (fooStdStream ++ fooVector).map(_.asJson)
+
+      assert(stream.through(through).runLog.unsafeAttemptRun === Right(foos.toVector))
+    }
+  }
+  
+  private def testParsingFailure(through: Pipe[Task, String, Json]) = {
+    forAll { (stringStdStream: StdStream[String], stringVector: Vector[String]) =>
+      val result = Stream("}").append(stringStream(stringStdStream, stringVector))
+        .through(through)
         .runLog.unsafeAttemptRun
-
-      assert(result.isLeft && result.left.get.isInstanceOf[DecodingFailure])
+      assert(result.isLeft && result.left.get.isInstanceOf[ParsingFailure])
     }
   }
 }
