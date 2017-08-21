@@ -14,11 +14,10 @@ class Fs2Suite extends CirceSuite {
   
   def serializeFoos(parsingMode: AsyncParser.Mode, foos: Stream[Task, Foo]): Stream[Task, String] =
     parsingMode match {
-      case AsyncParser.ValueStream =>
+      case AsyncParser.ValueStream | AsyncParser.SingleValue =>
         foos.map((_: Foo).asJson.spaces2).intersperse("\n")
       case AsyncParser.UnwrapArray =>
         Stream("[").append(foos.map((_: Foo).asJson.spaces2).intersperse(", ")).append(Stream("]"))
-      case _ => ???
     }
   
   def stringStream(stringStdStream: StdStream[String], stringVector: Vector[String]): Stream[Task, String] =
@@ -31,6 +30,13 @@ class Fs2Suite extends CirceSuite {
   "stringStreamParser" should "parse values delimeted by new lines" in {
     testParser(AsyncParser.ValueStream, stringStreamParser)
   }
+
+  "stringParser" should "parse single value" in {
+    forAll { (foo: Foo) =>
+      val stream = serializeFoos(AsyncParser.SingleValue, Stream.emit(foo))
+      assert(stream.through(stringParser(AsyncParser.SingleValue)).runLog.unsafeAttemptRun === Right(Vector(foo.asJson)))
+    }
+  }
   
   "byteArrayParser" should "parse bytes wrapped in array" in {
     testParser(AsyncParser.UnwrapArray, _.through(text.utf8Encode).through(byteArrayParser))
@@ -40,12 +46,32 @@ class Fs2Suite extends CirceSuite {
     testParser(AsyncParser.ValueStream, _.through(text.utf8Encode).through(byteStreamParser))
   }
 
+  "byteParser" should "parse single value" in {
+    forAll { (foo: Foo) =>
+      val stream = serializeFoos(AsyncParser.SingleValue, Stream.emit(foo))
+      assert(stream
+        .through(text.utf8Encode)
+        .through(byteParser(AsyncParser.SingleValue)).runLog.unsafeAttemptRun === Right(Vector(foo.asJson)))
+    }
+  }
+
   "byteArrayParserC" should "parse bytes wrapped in array" in {
     testParser(AsyncParser.UnwrapArray, _.through(text.utf8Encode).through(pipe.chunks).through(byteArrayParserC))
   }
 
   "byteStreamParserC" should "parse bytes delimeted by new lines" in {
     testParser(AsyncParser.ValueStream, _.through(text.utf8Encode).through(pipe.chunks).through(byteStreamParserC))
+  }
+
+
+  "byteParserC" should "parse single value" in {
+    forAll { (foo: Foo) =>
+      val stream = serializeFoos(AsyncParser.SingleValue, Stream.emit(foo))
+      assert(stream
+        .through(text.utf8Encode)
+        .through(pipe.chunks)
+        .through(byteParserC(AsyncParser.SingleValue)).runLog.unsafeAttemptRun === Right(Vector(foo.asJson)))
+    }
   }
 
   "decoder" should "decode enumerated JSON values" in 
