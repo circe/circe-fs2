@@ -10,38 +10,44 @@ This project provides support for using [fs2][fs2] for streaming JSON parsing an
 
 ## Parsing
 
-Circe-fs2 provides three pipes to parse your streams of JSONs:
+Circe-fs2 provides different pipes to parse your streams of JSONs depending on whether your stream
+is:
 
-### stringParser: `Stream[F[_], String] => Stream[F[_], Json]`
+- a \n-separated stream of JSON values or value stream:
 
-`stringParser` converts a stream of `String` to a stream of `Json`, Circe's representation of JSONs:
+```json
+{ "repo": "circe-fs2", "stars": 14 }
+{ "repo": "circe-config", "stars": 5 }
+```
+
+- or a JSON array:
+
+```json
+[
+  { "repo": "circe-fs2", "stars": 14 },
+  { "repo": "circe-config", "stars": 5 }
+]
+```
+
+The appropriate pipe for the job also depends on your input stream value type (i.e. `String`, `Byte`
+or `Chunk[Byte]`).
+
+The following table sums up every pipe available as a function of the input stream value type as
+well as the JSON structure:
+
+|                |String              |Byte              |Chunk[Byte]        |
+|----------------|--------------------|------------------|-------------------|
+|__Value stream__|`stringStreamParser`|`byteStreamParser`|`byteStreamParserC`|
+|__Array__       |`stringArrayParser` |`byteArrayParser` |`byteArrayParserC` |
+
+As an example, let's say we have a stream of strings representing a JSON array, we'll
+pick the `stringArrayParser` pipe which converts a stream of `String` to a stream of `Json`, Circe's
+representation of JSONs:
 
 ```scala
 import io.circe.fs2._
-
 val stringStream: Stream[Task, String] = ...
-
-val parsedStream: Stream[Task, Json] = stringStream.through(stringParser)
-```
-
-### byteParser: `Stream[F[_], Byte] => Stream[F[_], Json]`
-
-`byteParser` converts a stream of `Byte` to a stream of `Json`:
-
-```scala
-val byteStream: Stream[Task, Byte] = ...
-
-val parsedStream: Stream[Task, Json] = byteStream.through(byteParser)
-```
-
-### byteParserC: `Stream[F[_], Chunk[Byte]] => Stream[F[_], Json]`
-
-`byteParserC` converts a chunked stream of `Byte` to a stream of `Json`:
-
-```scala
-val chunkedByteStream: Stream[Task, Chunk[Byte]] = ...
-
-val parsedStream: Stream[Task, Json] = chunkedByteStream.through(byteParserC)
+val parsedStream: Stream[Task, Json] = stringStream.through(stringArrayParser)
 ```
 
 ## Decoding
