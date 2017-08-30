@@ -1,9 +1,9 @@
 package io.circe.fs2
 
-import _root_.fs2.{ Chunk, Handle, Pipe, Pull, Stream }
-import _root_.jawn.{ AsyncParser, ParseException }
-import io.circe.{ Json, ParsingFailure }
+import _root_.fs2.{Pipe, Pull, Segment, Stream}
+import _root_.jawn.{AsyncParser, ParseException}
 import io.circe.jawn.CirceSupportParser
+import io.circe.{Json, ParsingFailure}
 
 private[fs2] abstract class ParsingPipe[F[_], S] extends Pipe[F, S, Json] {
   protected[this] def parsingMode: AsyncParser.Mode
@@ -12,15 +12,16 @@ private[fs2] abstract class ParsingPipe[F[_], S] extends Pipe[F, S, Json] {
 
   private[this] final def makeParser: AsyncParser[Json] = CirceSupportParser.async(mode = parsingMode)
 
-  private[this] final def doneOrLoop[A](p: AsyncParser[Json])(h: Handle[F, S]): Pull[F, Json, Unit] =
-    h.receive1 {
-      case (s, h) => parseWith(p)(s) match {
+  private[this] final def doneOrLoop[A](p: AsyncParser[Json])(stream: Stream[F, S]): Pull[F, Json, Unit] =
+    stream.pull.uncons1.flatMap {
+      case Some((s, stream)) => parseWith(p)(s) match {
         case Left(error) =>
           Pull.fail(ParsingFailure(error.getMessage, error))
         case Right(js) =>
-          Pull.output(Chunk.seq(js)) >> doneOrLoop(p)(h)
+          Pull.output(Segment.seq(js)) >> doneOrLoop(p)(stream)
       }
+      case None => Pull.done
     }
 
-  final def apply(s: Stream[F, S]): Stream[F, Json] = s.pull(doneOrLoop(makeParser))
+  final def apply(s: Stream[F, S]): Stream[F, Json] = doneOrLoop(makeParser)(s).stream
 }
