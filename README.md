@@ -30,15 +30,15 @@ is:
 ```
 
 The appropriate pipe for the job also depends on your input stream value type (i.e. `String`, `Byte`
-or `Chunk[Byte]`).
+or `Segment[Byte]`).
 
 The following table sums up every pipe available as a function of the input stream value type as
 well as the JSON structure:
 
-|                |String              |Byte              |Chunk[Byte]        |
+|                |String              |Byte              |Segment[Byte]      |
 |----------------|--------------------|------------------|-------------------|
-|__Value stream__|`stringStreamParser`|`byteStreamParser`|`byteStreamParserC`|
-|__Array__       |`stringArrayParser` |`byteArrayParser` |`byteArrayParserC` |
+|__Value stream__|`stringStreamParser`|`byteStreamParser`|`byteStreamParserS`|
+|__Array__       |`stringArrayParser` |`byteArrayParser` |`byteArrayParserS` |
 
 As an example, let's say we have a stream of strings representing a JSON array, we'll
 pick the `stringArrayParser` pipe which converts a stream of `String` to a stream of `Json`, Circe's
