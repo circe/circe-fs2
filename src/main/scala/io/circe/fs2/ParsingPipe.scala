@@ -18,7 +18,7 @@ private[fs2] abstract class ParsingPipe[F[_], S] extends Pipe[F, S, Json] {
         case Left(error) =>
           Pull.fail(ParsingFailure(error.getMessage, error))
         case Right(js) =>
-          Pull.output(Segment.seq(js)) >> doneOrLoop(p)(str)
+          Pull.output(Segment.seq(js)) *> doneOrLoop(p)(str)
       }
       case None => Pull.done
     }
