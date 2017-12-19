@@ -14,8 +14,8 @@ val compilerOptions = Seq(
   "-Xfuture"
 )
 
-val circeVersion = "0.9.0-M2"
-val fs2Version = "0.10.0-M8"
+val circeVersion = "0.9.0-M3"
+val fs2Version = "0.10.0-M10"
 val previousCirceFs2Version = "0.8.0"
 
 val baseSettings = Seq(
