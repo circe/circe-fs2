@@ -16,7 +16,7 @@ package object fs2 {
   final def byteArrayParserS[F[_]]: Pipe[F, Segment[Byte, Unit], Json] = byteParserS(AsyncParser.UnwrapArray)
 
   final def byteStreamParserS[F[_]]: Pipe[F, Segment[Byte, Unit], Json] = byteParserS(AsyncParser.ValueStream)
-  
+
   final def stringParser[F[_]](mode: AsyncParser.Mode): Pipe[F, String, Json] = new ParsingPipe[F, String] {
     protected[this] final def parseWith(p: AsyncParser[Json])(in: String): Either[ParseException, Seq[Json]] =
       p.absorb(in)(CirceSupportParser.facade)
@@ -27,7 +27,7 @@ package object fs2 {
   final def byteParserS[F[_]](mode: AsyncParser.Mode): Pipe[F, Segment[Byte, Unit], Json] =
     new ParsingPipe[F, Segment[Byte, Unit]] {
       protected[this] final def parseWith(p: AsyncParser[Json])(in: Segment[Byte, Unit]): Either[ParseException, Seq[Json]] =
-        p.absorb(in.toArray)(CirceSupportParser.facade)
+        p.absorb(in.force.toArray)(CirceSupportParser.facade)
 
       protected[this] val parsingMode: AsyncParser.Mode = mode
     }
@@ -37,7 +37,7 @@ package object fs2 {
   final def decoder[F[_], A](implicit decode: Decoder[A]): Pipe[F, Json, A] =
     _.flatMap { json =>
       decode(json.hcursor) match {
-        case Left(df) => Stream.fail(df)
+        case Left(df) => Stream.raiseError(df)
         case Right(a) => Stream.emit(a)
       }
     }
