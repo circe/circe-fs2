@@ -5,7 +5,7 @@ resolvers ++= Seq(
 )
 
 addSbtPlugin("com.dwijnand" % "sbt-travisci" % "1.1.1")
-addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.6")
+addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.7")
 addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.0")
 addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "0.1.18")
 addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.6.2")
