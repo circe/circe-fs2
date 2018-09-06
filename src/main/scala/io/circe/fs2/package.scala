@@ -17,8 +17,8 @@ package object fs2 {
 
   final def byteStreamParserC[F[_] : RaiseThrowable]: Pipe[F, Chunk[Byte], Json] = byteParserC(AsyncParser.ValueStream)
 
-  final def stringParser[F[_]](mode: AsyncParser.Mode)(implicit F: RaiseThrowable[F]): Pipe[F, String, Json] = new ParsingPipe[F, String] {
-    override protected[this] val raiseThrowable: RaiseThrowable[F] = F
+  final def stringParser[F[_] : RaiseThrowable](mode: AsyncParser.Mode): Pipe[F, String, Json] = new ParsingPipe[F, String] {
+    override protected[this] val raiseThrowable: RaiseThrowable[F] = implicitly[RaiseThrowable[F]]
 
     protected[this] final def parseWith(p: AsyncParser[Json])(in: String): Either[ParseException, Seq[Json]] =
       p.absorb(in)(CirceSupportParser.facade)
@@ -26,9 +26,9 @@ package object fs2 {
     protected[this] val parsingMode: AsyncParser.Mode = mode
   }
 
-  final def byteParserC[F[_]](mode: AsyncParser.Mode)(implicit F: RaiseThrowable[F]): Pipe[F, Chunk[Byte], Json] =
+  final def byteParserC[F[_] : RaiseThrowable](mode: AsyncParser.Mode): Pipe[F, Chunk[Byte], Json] =
     new ParsingPipe[F, Chunk[Byte]] {
-      override protected[this] val raiseThrowable: RaiseThrowable[F] = F
+      override protected[this] val raiseThrowable: RaiseThrowable[F] = implicitly[RaiseThrowable[F]]
 
       protected[this] final def parseWith(p: AsyncParser[Json])(in: Chunk[Byte]): Either[ParseException, Seq[Json]] =
         p.absorb(in.toArray)(CirceSupportParser.facade)
