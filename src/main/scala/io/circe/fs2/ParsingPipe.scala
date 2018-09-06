@@ -1,11 +1,13 @@
 package io.circe.fs2
 
-import _root_.fs2.{ Pipe, Pull, Segment, Stream }
+import _root_.fs2.{ Chunk, Pipe, Pull, RaiseThrowable, Stream }
 import _root_.jawn.{ AsyncParser, ParseException }
 import io.circe.{ Json, ParsingFailure }
 import io.circe.jawn.CirceSupportParser
 
 private[fs2] abstract class ParsingPipe[F[_], S] extends Pipe[F, S, Json] {
+  protected[this] val raiseThrowable: RaiseThrowable[F]
+
   protected[this] def parsingMode: AsyncParser.Mode
 
   protected[this] def parseWith(parser: AsyncParser[Json])(in: S): Either[ParseException, Seq[Json]]
@@ -16,9 +18,9 @@ private[fs2] abstract class ParsingPipe[F[_], S] extends Pipe[F, S, Json] {
     s.pull.uncons1.flatMap {
       case Some((s, str)) => parseWith(p)(s) match {
         case Left(error) =>
-          Pull.raiseError(ParsingFailure(error.getMessage, error))
+          Pull.raiseError(ParsingFailure(error.getMessage, error))(raiseThrowable)
         case Right(js) =>
-          Pull.output(Segment.seq(js)) >> doneOrLoop(p)(str)
+          Pull.output(Chunk.seq(js)) >> doneOrLoop(p)(str)
       }
       case None => Pull.done
     }
