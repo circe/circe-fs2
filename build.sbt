@@ -43,8 +43,8 @@ val fs2 = project.in(file("."))
     libraryDependencies ++= Seq(
       "co.fs2" %% "fs2-core" % fs2Version,
       "io.circe" %% "circe-jawn" % circeVersion,
-      "io.circe" %% "circe-generic" % circeVersion % "test",
-      "io.circe" %% "circe-testing" % circeVersion % "test"
+      "io.circe" %% "circe-generic" % circeVersion % Test,
+      "io.circe" %% "circe-testing" % circeVersion % Test
     ),
     ghpagesNoJekyll := true,
     docMappingsApiDir := "api",
