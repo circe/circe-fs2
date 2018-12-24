@@ -6,7 +6,7 @@ import io.circe.{ DecodingFailure, Json, ParsingFailure }
 import io.circe.fs2.examples._
 import io.circe.generic.auto._
 import io.circe.syntax._
-import jawn.AsyncParser
+import org.typelevel.jawn.AsyncParser
 import scala.collection.immutable.{Stream => StdStream}
 
 class Fs2Suite extends CirceSuite {
