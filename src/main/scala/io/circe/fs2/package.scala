@@ -1,8 +1,8 @@
 package io.circe
 
 import _root_.fs2.{Chunk, Pipe, RaiseThrowable, Stream}
-import _root_.jawn.{AsyncParser, ParseException}
 import io.circe.jawn.CirceSupportParser
+import org.typelevel.jawn.{AsyncParser, ParseException}
 
 package object fs2 {
   final def stringArrayParser[F[_] : RaiseThrowable]: Pipe[F, String, Json] = stringParser(AsyncParser.UnwrapArray)

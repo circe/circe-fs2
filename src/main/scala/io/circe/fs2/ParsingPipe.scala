@@ -1,9 +1,9 @@
 package io.circe.fs2
 
 import _root_.fs2.{ Chunk, Pipe, Pull, RaiseThrowable, Stream }
-import _root_.jawn.{ AsyncParser, ParseException }
 import io.circe.{ Json, ParsingFailure }
 import io.circe.jawn.CirceSupportParser
+import org.typelevel.jawn.{ AsyncParser, ParseException }
 
 private[fs2] abstract class ParsingPipe[F[_], S] extends Pipe[F, S, Json] {
   protected[this] val raiseThrowable: RaiseThrowable[F]
