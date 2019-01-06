@@ -16,6 +16,7 @@ val compilerOptions = Seq(
 
 val circeVersion = "0.11.0"
 val fs2Version = "1.0.2"
+val jawnVersion = "0.14.1"
 val previousCirceFs2Version = "0.10.0"
 
 val baseSettings = Seq(
@@ -44,7 +45,8 @@ val fs2 = project.in(file("."))
       "co.fs2" %% "fs2-core" % fs2Version,
       "io.circe" %% "circe-jawn" % circeVersion,
       "io.circe" %% "circe-generic" % circeVersion % Test,
-      "io.circe" %% "circe-testing" % circeVersion % Test
+      "io.circe" %% "circe-testing" % circeVersion % Test,
+      "org.typelevel" %% "jawn-parser" % jawnVersion
     ),
     ghpagesNoJekyll := true,
     docMappingsApiDir := "api",
