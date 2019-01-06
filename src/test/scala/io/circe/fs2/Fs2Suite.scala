@@ -2,7 +2,7 @@ package io.circe.fs2
 
 import _root_.fs2.{ Pipe, Stream, text }
 import cats.effect.IO
-import io.circe.{ DecodingFailure, Json }
+import io.circe.{ DecodingFailure, Json, ParsingFailure }
 import io.circe.fs2.examples._
 import io.circe.generic.auto._
 import io.circe.syntax._
@@ -87,6 +87,30 @@ class Fs2Suite extends CirceSuite {
         .compile.toVector.attempt.unsafeRunSync() === Right(foos.toVector))
     }
 
+  "stringArrayParser" should "return ParsingFailure" in {
+    testParsingFailure(_.through(stringArrayParser))
+  }
+
+  "stringStreamParser" should "return ParsingFailure" in {
+    testParsingFailure(_.through(stringStreamParser))
+  }
+
+  "byteArrayParser" should "return ParsingFailure" in {
+    testParsingFailure(_.through(text.utf8Encode).through(byteArrayParser))
+  }
+
+  "byteStreamParser" should "return ParsingFailure" in {
+    testParsingFailure(_.through(text.utf8Encode).through(byteStreamParser))
+  }
+
+  "byteArrayParserC" should "return ParsingFailure" in {
+    testParsingFailure(_.through(text.utf8Encode).chunks.through(byteArrayParserC))
+  }
+
+  "byteStreamParserC" should "return ParsingFailure" in {
+    testParsingFailure(_.through(text.utf8Encode).chunks.through(byteStreamParserC))
+  }
+
   "decoder" should "return DecodingFailure" in
     forAll { (fooStdStream: StdStream[Foo], fooVector: Vector[Foo]) =>
       sealed trait Foo2
@@ -108,6 +132,15 @@ class Fs2Suite extends CirceSuite {
 
       assert(
         stream.through(through).compile.toVector.attempt.unsafeRunSync() === Right(foos.toVector))
+    }
+  }
+
+  private def testParsingFailure(through: Pipe[IO, String, Json]) = {
+    forAll { (stringStdStream: StdStream[String], stringVector: Vector[String]) =>
+      val result = Stream("}").append(stringStream(stringStdStream, stringVector))
+        .through(through)
+        .compile.toVector.attempt.unsafeRunSync()
+      assert(result.isLeft && result.left.get.isInstanceOf[ParsingFailure])
     }
   }
 }
