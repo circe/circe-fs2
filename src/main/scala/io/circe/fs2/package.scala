@@ -1,24 +1,24 @@
 package io.circe
 
-import _root_.fs2.{Chunk, Pipe, RaiseThrowable, Stream}
+import _root_.fs2.{Chunk, Pipe, Stream}
+import cats.effect.Sync
 import io.circe.jawn.CirceSupportParser
 import org.typelevel.jawn.{AsyncParser, ParseException}
 
 package object fs2 {
-  final def stringArrayParser[F[_] : RaiseThrowable]: Pipe[F, String, Json] = stringParser(AsyncParser.UnwrapArray)
+  final def stringArrayParser[F[_] : Sync]: Pipe[F, String, Json] = stringParser(AsyncParser.UnwrapArray)
 
-  final def stringStreamParser[F[_] : RaiseThrowable]: Pipe[F, String, Json] = stringParser(AsyncParser.ValueStream)
+  final def stringStreamParser[F[_] : Sync]: Pipe[F, String, Json] = stringParser(AsyncParser.ValueStream)
 
-  final def byteArrayParser[F[_] : RaiseThrowable]: Pipe[F, Byte, Json] = byteParser(AsyncParser.UnwrapArray)
+  final def byteArrayParser[F[_] : Sync]: Pipe[F, Byte, Json] = byteParser(AsyncParser.UnwrapArray)
 
-  final def byteStreamParser[F[_] : RaiseThrowable]: Pipe[F, Byte, Json] = byteParser(AsyncParser.ValueStream)
+  final def byteStreamParser[F[_] : Sync]: Pipe[F, Byte, Json] = byteParser(AsyncParser.ValueStream)
 
-  final def byteArrayParserC[F[_] : RaiseThrowable]: Pipe[F, Chunk[Byte], Json] = byteParserC(AsyncParser.UnwrapArray)
+  final def byteArrayParserC[F[_] : Sync]: Pipe[F, Chunk[Byte], Json] = byteParserC(AsyncParser.UnwrapArray)
 
-  final def byteStreamParserC[F[_] : RaiseThrowable]: Pipe[F, Chunk[Byte], Json] = byteParserC(AsyncParser.ValueStream)
+  final def byteStreamParserC[F[_] : Sync]: Pipe[F, Chunk[Byte], Json] = byteParserC(AsyncParser.ValueStream)
 
-  final def stringParser[F[_] : RaiseThrowable](mode: AsyncParser.Mode): Pipe[F, String, Json] = new ParsingPipe[F, String] {
-    override protected[this] val raiseThrowable: RaiseThrowable[F] = implicitly[RaiseThrowable[F]]
+  final def stringParser[F[_] : Sync](mode: AsyncParser.Mode): Pipe[F, String, Json] = new ParsingPipe[F, String] {
 
     protected[this] final def parseWith(p: AsyncParser[Json])(in: String): Either[ParseException, Seq[Json]] =
       p.absorb(in)(CirceSupportParser.facade)
@@ -26,9 +26,8 @@ package object fs2 {
     protected[this] val parsingMode: AsyncParser.Mode = mode
   }
 
-  final def byteParserC[F[_] : RaiseThrowable](mode: AsyncParser.Mode): Pipe[F, Chunk[Byte], Json] =
+  final def byteParserC[F[_] : Sync](mode: AsyncParser.Mode): Pipe[F, Chunk[Byte], Json] =
     new ParsingPipe[F, Chunk[Byte]] {
-      override protected[this] val raiseThrowable: RaiseThrowable[F] = implicitly[RaiseThrowable[F]]
 
       protected[this] final def parseWith(p: AsyncParser[Json])(in: Chunk[Byte]): Either[ParseException, Seq[Json]] =
         p.absorb(in.toArray)(CirceSupportParser.facade)
@@ -36,9 +35,9 @@ package object fs2 {
       protected[this] val parsingMode: AsyncParser.Mode = mode
     }
 
-  final def byteParser[F[_] : RaiseThrowable](mode: AsyncParser.Mode): Pipe[F, Byte, Json] = _.chunks.through(byteParserC(mode))
+  final def byteParser[F[_] : Sync](mode: AsyncParser.Mode): Pipe[F, Byte, Json] = _.chunks.through(byteParserC(mode))
 
-  final def decoder[F[_] : RaiseThrowable, A](implicit decode: Decoder[A]): Pipe[F, Json, A] =
+  final def decoder[F[_] : Sync, A](implicit decode: Decoder[A]): Pipe[F, Json, A] =
     _.flatMap { json =>
       decode(json.hcursor) match {
         case Left(df) => Stream.raiseError(df)
