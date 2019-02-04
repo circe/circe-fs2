@@ -1,18 +1,19 @@
 package io.circe.fs2
 
 import _root_.fs2.{ Chunk, Pipe, Pull, RaiseThrowable, Stream }
+import cats.effect.Sync
 import io.circe.{ Json, ParsingFailure }
 import io.circe.jawn.CirceSupportParser
 import org.typelevel.jawn.{ AsyncParser, ParseException }
 
-private[fs2] abstract class ParsingPipe[F[_], S] extends Pipe[F, S, Json] {
-  protected[this] val raiseThrowable: RaiseThrowable[F]
+private[fs2] abstract class ParsingPipe[F[_]: Sync, S] extends Pipe[F, S, Json] {
+  private[this] val raiseThrowable: RaiseThrowable[F] = RaiseThrowable.fromApplicativeError
 
   protected[this] def parsingMode: AsyncParser.Mode
 
   protected[this] def parseWith(parser: AsyncParser[Json])(in: S): Either[ParseException, Seq[Json]]
 
-  private[this] final def makeParser: AsyncParser[Json] = CirceSupportParser.async(mode = parsingMode)
+  private[this] final def makeParser: F[AsyncParser[Json]] = Sync[F].delay(CirceSupportParser.async(mode = parsingMode))
 
   private[this] final def doneOrLoop[A](p: AsyncParser[Json])(s: Stream[F, S]): Pull[F, Json, Unit] =
     s.pull.uncons1.flatMap {
@@ -25,5 +26,5 @@ private[fs2] abstract class ParsingPipe[F[_], S] extends Pipe[F, S, Json] {
       case None => Pull.done
     }
 
-  final def apply(s: Stream[F, S]): Stream[F, Json] = doneOrLoop(makeParser)(s).stream
+  final def apply(s: Stream[F, S]): Stream[F, Json] = Stream.eval(makeParser).flatMap(parser => doneOrLoop(parser)(s).stream)
 }
