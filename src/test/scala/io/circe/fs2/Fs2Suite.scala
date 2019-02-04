@@ -56,6 +56,19 @@ class Fs2Suite extends CirceSuite {
     }
   }
 
+  "byteParser" should "parse single value, when run twice" in {
+    forAll { (foo: Foo) =>
+      val stream = serializeFoos(AsyncParser.SingleValue, Stream.emit(foo))
+
+      val parseOnce =
+        stream.through(text.utf8Encode).through(byteParser(AsyncParser.SingleValue)).compile.toVector
+
+      parseOnce.attempt.unsafeRunSync()
+
+      assert(parseOnce.attempt.unsafeRunSync() == Right(Vector(foo.asJson)))
+    }
+  }
+
   "byteArrayParserC" should "parse bytes wrapped in array" in {
     testParser(AsyncParser.UnwrapArray,
       _.through(text.utf8Encode).chunks.through(byteArrayParserC))
