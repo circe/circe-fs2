@@ -18,14 +18,16 @@ private[fs2] abstract class ParsingPipe[F[_]: Sync, S](supportParser: CirceSuppo
 
   private[this] final def doneOrLoop[A](p: AsyncParser[Json])(s: Stream[F, S]): Pull[F, Json, Unit] =
     s.pull.uncons1.flatMap {
-      case Some((s, str)) => parseWith(p)(s) match {
-        case Left(error) =>
-          Pull.raiseError(ParsingFailure(error.getMessage, error))(raiseThrowable)
-        case Right(js) =>
-          Pull.output(Chunk.seq(js)) >> doneOrLoop(p)(str)
-      }
+      case Some((s, str)) =>
+        parseWith(p)(s) match {
+          case Left(error) =>
+            Pull.raiseError(ParsingFailure(error.getMessage, error))(raiseThrowable)
+          case Right(js) =>
+            Pull.output(Chunk.seq(js)) >> doneOrLoop(p)(str)
+        }
       case None => Pull.done
     }
 
-  final def apply(s: Stream[F, S]): Stream[F, Json] = Stream.eval(makeParser).flatMap(parser => doneOrLoop(parser)(s).stream)
+  final def apply(s: Stream[F, S]): Stream[F, Json] =
+    Stream.eval(makeParser).flatMap(parser => doneOrLoop(parser)(s).stream)
 }
