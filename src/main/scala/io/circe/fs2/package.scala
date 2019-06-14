@@ -4,8 +4,11 @@ import _root_.fs2.{Chunk, Pipe, Stream}
 import cats.effect.Sync
 import io.circe.jawn.CirceSupportParser
 import org.typelevel.jawn.{AsyncParser, ParseException}
+import scala.collection.Seq
 
 package object fs2 {
+  private[this] val supportParser: CirceSupportParser = new CirceSupportParser(None, true)
+
   final def stringArrayParser[F[_] : Sync]: Pipe[F, String, Json] = stringParser(AsyncParser.UnwrapArray)
 
   final def stringStreamParser[F[_] : Sync]: Pipe[F, String, Json] = stringParser(AsyncParser.ValueStream)
@@ -18,19 +21,20 @@ package object fs2 {
 
   final def byteStreamParserC[F[_] : Sync]: Pipe[F, Chunk[Byte], Json] = byteParserC(AsyncParser.ValueStream)
 
-  final def stringParser[F[_] : Sync](mode: AsyncParser.Mode): Pipe[F, String, Json] = new ParsingPipe[F, String] {
+  final def stringParser[F[_] : Sync](mode: AsyncParser.Mode): Pipe[F, String, Json] =
+    new ParsingPipe[F, String](supportParser) {
 
-    protected[this] final def parseWith(p: AsyncParser[Json])(in: String): Either[ParseException, Seq[Json]] =
-      p.absorb(in)(CirceSupportParser.facade)
+      protected[this] final def parseWith(p: AsyncParser[Json])(in: String): Either[ParseException, Seq[Json]] =
+        p.absorb(in)(supportParser.facade)
 
-    protected[this] val parsingMode: AsyncParser.Mode = mode
-  }
+      protected[this] val parsingMode: AsyncParser.Mode = mode
+    }
 
   final def byteParserC[F[_] : Sync](mode: AsyncParser.Mode): Pipe[F, Chunk[Byte], Json] =
-    new ParsingPipe[F, Chunk[Byte]] {
+    new ParsingPipe[F, Chunk[Byte]](supportParser) {
 
       protected[this] final def parseWith(p: AsyncParser[Json])(in: Chunk[Byte]): Either[ParseException, Seq[Json]] =
-        p.absorb(in.toArray)(CirceSupportParser.facade)
+        p.absorb(in.toArray)(supportParser.facade)
 
       protected[this] val parsingMode: AsyncParser.Mode = mode
     }
