@@ -7,20 +7,38 @@ val compilerOptions = Seq(
   "-language:existentials",
   "-language:higherKinds",
   "-unchecked",
-  "-Yno-adapted-args",
   "-Ywarn-dead-code",
-  "-Ywarn-numeric-widen",
-  "-Ywarn-unused-import",
-  "-Xfuture"
+  "-Ywarn-numeric-widen"
 )
 
-val circeVersion = "0.11.1"
-val fs2Version = "1.0.5"
+val circeVersion = "0.12.0-M3"
+val fs2Version = "1.1.0-M1"
 val jawnVersion = "0.14.2"
-val previousCirceFs2Version = "0.10.0"
+val previousCirceFs2Version = "0.11.0"
+
+val scalaTestVersion = "3.1.0-SNAP13"
+val scalaTestPlusVersion = "1.0.0-SNAP8"
+
+def priorTo2_13(scalaVersion: String): Boolean =
+  CrossVersion.partialVersion(scalaVersion) match {
+    case Some((2, minor)) if minor < 13 => true
+    case _                              => false
+}
 
 val baseSettings = Seq(
   scalacOptions ++= compilerOptions,
+  scalacOptions ++= (
+    if (priorTo2_13(scalaVersion.value))
+      Seq(
+        "-Xfuture",
+        "-Yno-adapted-args",
+        "-Ywarn-unused-import"
+      )
+    else
+      Seq(
+        "-Ywarn-unused:imports"
+      )
+  ),
   scalacOptions in (Compile, console) ~= {
     _.filterNot(Set("-Ywarn-unused-import"))
   },
@@ -28,7 +46,7 @@ val baseSettings = Seq(
     _.filterNot(Set("-Ywarn-unused-import"))
   },
   coverageHighlighting := true,
-  coverageScalacPluginVersion := "1.3.0",
+  coverageScalacPluginVersion := "1.3.1",
   (scalastyleSources in Compile) ++= (unmanagedSourceDirectories in Compile).value
 )
 
@@ -46,6 +64,8 @@ val fs2 = project.in(file("."))
       "io.circe" %% "circe-jawn" % circeVersion,
       "io.circe" %% "circe-generic" % circeVersion % Test,
       "io.circe" %% "circe-testing" % circeVersion % Test,
+      "org.scalatest" %% "scalatest" % scalaTestVersion % Test,
+      "org.scalatestplus" %% "scalatestplus-scalacheck" % scalaTestPlusVersion % Test,
       "org.typelevel" %% "jawn-parser" % jawnVersion
     ),
     ghpagesNoJekyll := true,
