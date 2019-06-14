@@ -48,6 +48,7 @@ val baseSettings = Seq(
   },
   coverageHighlighting := true,
   coverageScalacPluginVersion := "1.3.1",
+  coverageEnabled := (if (priorTo2_13(scalaVersion.value)) coverageEnabled.value else false),
   (scalastyleSources in Compile) ++= (unmanagedSourceDirectories in Compile).value
 )
 
