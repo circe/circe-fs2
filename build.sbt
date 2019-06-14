@@ -2,7 +2,8 @@ organization in ThisBuild := "io.circe"
 
 val compilerOptions = Seq(
   "-deprecation",
-  "-encoding", "UTF-8",
+  "-encoding",
+  "UTF-8",
   "-feature",
   "-language:existentials",
   "-language:higherKinds",
@@ -23,7 +24,7 @@ def priorTo2_13(scalaVersion: String): Boolean =
   CrossVersion.partialVersion(scalaVersion) match {
     case Some((2, minor)) if minor < 13 => true
     case _                              => false
-}
+  }
 
 val baseSettings = Seq(
   scalacOptions ++= compilerOptions,
@@ -54,7 +55,8 @@ val allSettings = baseSettings ++ publishSettings
 
 val docMappingsApiDir = settingKey[String]("Subdirectory in site target directory for API docs")
 
-val fs2 = project.in(file("."))
+val fs2 = project
+  .in(file("."))
   .settings(allSettings)
   .settings(
     moduleName := "circe-fs2",
@@ -80,18 +82,20 @@ lazy val publishSettings = Seq(
   licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
   publishMavenStyle := true,
   publishArtifact in Test := false,
-  pomIncludeRepository := { _ => false },
+  pomIncludeRepository := { _ =>
+    false
+  },
   publishTo := {
     val nexus = "https://oss.sonatype.org/"
     if (isSnapshot.value)
       Some("snapshots" at nexus + "content/repositories/snapshots")
     else
-      Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+      Some("releases" at nexus + "service/local/staging/deploy/maven2")
   },
   /* Someday maybe Scaladoc will actually work on package object-only projects.
   autoAPIMappings := true,
   apiURL := Some(url("https://circe.github.io/circe-fs2/api/")),
-  */
+   */
   scmInfo := Some(
     ScmInfo(
       url("https://github.com/circe/circe-fs2"),
