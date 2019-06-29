@@ -157,16 +157,15 @@ class Fs2Suite extends CirceSuite {
       }
     }
 
-  private def testParser(mode: AsyncParser.Mode, through: Pipe[IO, String, Json]) = {
+  private def testParser(mode: AsyncParser.Mode, through: Pipe[IO, String, Json]) =
     forAll { (fooStdStream: StdStream[Foo], fooVector: Vector[Foo]) =>
       val stream = serializeFoos(mode, fooStream(fooStdStream, fooVector))
       val foos = (fooStdStream ++ fooVector).map(_.asJson)
 
       assert(stream.through(through).compile.toVector.attempt.unsafeRunSync() === Right(foos.toVector))
     }
-  }
 
-  private def testParsingFailure(through: Pipe[IO, String, Json]) = {
+  private def testParsingFailure(through: Pipe[IO, String, Json]) =
     forAll { (stringStdStream: StdStream[String], stringVector: Vector[String]) =>
       val result = Stream("}")
         .append(stringStream(stringStdStream, stringVector))
@@ -177,5 +176,4 @@ class Fs2Suite extends CirceSuite {
         .unsafeRunSync()
       assert(result.isLeft && result.left.get.isInstanceOf[ParsingFailure])
     }
-  }
 }
