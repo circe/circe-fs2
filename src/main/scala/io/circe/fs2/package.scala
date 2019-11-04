@@ -23,7 +23,6 @@ package object fs2 {
 
   final def stringParser[F[_]: Sync](mode: AsyncParser.Mode): Pipe[F, String, Json] =
     new ParsingPipe[F, String](supportParser) {
-
       protected[this] final def parseWith(p: AsyncParser[Json])(in: String): Either[ParseException, Seq[Json]] =
         p.absorb(in)(supportParser.facade)
 
@@ -32,7 +31,6 @@ package object fs2 {
 
   final def byteParserC[F[_]: Sync](mode: AsyncParser.Mode): Pipe[F, Chunk[Byte], Json] =
     new ParsingPipe[F, Chunk[Byte]](supportParser) {
-
       protected[this] final def parseWith(p: AsyncParser[Json])(in: Chunk[Byte]): Either[ParseException, Seq[Json]] =
         p.absorb(in.toArray)(supportParser.facade)
 
