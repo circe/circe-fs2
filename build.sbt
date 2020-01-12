@@ -78,6 +78,7 @@ val fs2 = project
 
 lazy val publishSettings = Seq(
   releaseCrossBuild := true,
+  releaseVcsSign := true,
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
   homepage := Some(url("https://github.com/circe/circe-fs2")),
   licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
