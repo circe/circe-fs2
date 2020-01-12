@@ -17,8 +17,8 @@ val fs2Version = "2.1.0"
 val jawnVersion = "0.14.3"
 val previousCirceFs2Version = "0.11.0"
 
-val scalaTestVersion = "3.2.0-M2"
-val scalaTestPlusVersion = "3.1.0.0-RC2"
+val scalaTestVersion = "3.1.0"
+val scalaTestPlusVersion = "3.1.0.1"
 
 def priorTo2_13(scalaVersion: String): Boolean =
   CrossVersion.partialVersion(scalaVersion) match {
@@ -68,7 +68,7 @@ val fs2 = project
       "io.circe" %% "circe-generic" % circeVersion % Test,
       "io.circe" %% "circe-testing" % circeVersion % Test,
       "org.scalatest" %% "scalatest" % scalaTestVersion % Test,
-      "org.scalatestplus" %% "scalatestplus-scalacheck" % scalaTestPlusVersion % Test,
+      "org.scalatestplus" %% "scalacheck-1-14" % scalaTestPlusVersion % Test,
       "org.typelevel" %% "jawn-parser" % jawnVersion
     ),
     ghpagesNoJekyll := true,
