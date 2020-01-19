@@ -12,7 +12,7 @@ val compilerOptions = Seq(
   "-Ywarn-numeric-widen"
 )
 
-val circeVersion = "0.13.0-M2"
+val circeVersion = "0.13.0-RC1"
 val fs2Version = "2.1.0"
 val jawnVersion = "1.0.0-RC3"
 val previousCirceFs2Version = "0.11.0"
