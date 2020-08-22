@@ -18,7 +18,7 @@ val jawnVersion = "1.0.0"
 val previousCirceFs2Version = "0.11.0"
 
 val scalaTestVersion = "3.2.0"
-val scalaTestPlusVersion = "3.2.1.0"
+val scalaTestPlusVersion = "3.2.2.0"
 
 def priorTo2_13(scalaVersion: String): Boolean =
   CrossVersion.partialVersion(scalaVersion) match {
