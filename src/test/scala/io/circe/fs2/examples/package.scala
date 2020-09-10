@@ -51,8 +51,8 @@ package examples {
 
   object Baz {
     implicit val decodeBaz: Decoder[Baz] = Decoder[List[String]].map(Baz(_))
-    implicit val encodeBaz: Encoder[Baz] = Encoder.instance {
-      case Baz(xs) => Json.fromValues(xs.map(Json.fromString))
+    implicit val encodeBaz: Encoder[Baz] = Encoder.instance { case Baz(xs) =>
+      Json.fromValues(xs.map(Json.fromString))
     }
   }
 
