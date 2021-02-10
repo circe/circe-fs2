@@ -16,6 +16,7 @@ val circeVersion = "0.13.0"
 val fs2Version = "2.5.0"
 val jawnVersion = "1.0.3"
 val previousCirceFs2Version = "0.11.0"
+val shapelessVersion = "2.3.3"
 
 val scalaTestVersion = "3.2.3"
 val scalaTestPlusVersion = "3.2.2.0"
@@ -69,7 +70,8 @@ val fs2 = project
       "io.circe" %% "circe-testing" % circeVersion % Test,
       "org.scalatest" %% "scalatest" % scalaTestVersion % Test,
       "org.scalatestplus" %% "scalacheck-1-14" % scalaTestPlusVersion % Test,
-      "org.typelevel" %% "jawn-parser" % jawnVersion
+      "org.typelevel" %% "jawn-parser" % jawnVersion,
+      "com.chuusai" %% "shapeless" % shapelessVersion
     ),
     ghpagesNoJekyll := true,
     docMappingsApiDir := "api",
