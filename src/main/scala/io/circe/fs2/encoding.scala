@@ -1,6 +1,6 @@
 package io.circe.fs2
 
-import fs2.{Pipe, Stream}
+import fs2.{ Pipe, Stream }
 import io.circe.Encoder
 import io.circe.syntax._
 import shapeless._
@@ -26,7 +26,8 @@ object encoding {
     implicit def fromOption[F[_], A](implicit enc: StreamEncoder[F, A]): StreamEncoder[F, Option[A]] =
       StreamEncoder.instance(_.fold[Stream[F, String]](Stream("null"))(enc.encode))
 
-    implicit def fromEncoder[F[_], A: Encoder]: StreamEncoder[F, A] = StreamEncoder.instance(a => Stream.emit(a.asJson.noSpaces))
+    implicit def fromEncoder[F[_], A: Encoder]: StreamEncoder[F, A] =
+      StreamEncoder.instance(a => Stream.emit(a.asJson.noSpaces))
   }
 
   trait LowPriorityImplicits {
@@ -47,30 +48,27 @@ object encoding {
     implicit def hnilEncoder[F[_]]: StreamEncoder[F, HNil] =
       StreamEncoder.instance(_ => Stream.empty)
 
-    implicit def hlistObjectEncoder[F[_], K <: Symbol, H, T <: HList](
-                                                                       implicit
-                                                                       witness: Witness.Aux[K],
-                                                                       hEncoder: Lazy[StreamEncoder[F, H]],
-                                                                       tEncoder: StreamEncoder[F, T]
-                                                                     ): StreamEncoder[F, FieldType[K, H] :: T] = {
+    implicit def hlistObjectEncoder[F[_], K <: Symbol, H, T <: HList](implicit
+      witness: Witness.Aux[K],
+      hEncoder: Lazy[StreamEncoder[F, H]],
+      tEncoder: StreamEncoder[F, T]
+    ): StreamEncoder[F, FieldType[K, H] :: T] = {
       val fieldName = witness.value.name
-      StreamEncoder.instance {
-        case h :: t =>
-          val head = hEncoder.value.encode(h)
-          val tail = tEncoder.encode(t)
-          val comma = t match {
-            case HNil => Stream.empty
-            case _    => Stream.emit(",")
-          }
-          Stream.emit(s""""$fieldName":""") ++ head ++ comma ++ tail
+      StreamEncoder.instance { case h :: t =>
+        val head = hEncoder.value.encode(h)
+        val tail = tEncoder.encode(t)
+        val comma = t match {
+          case HNil => Stream.empty
+          case _    => Stream.emit(",")
+        }
+        Stream.emit(s""""$fieldName":""") ++ head ++ comma ++ tail
       }
     }
 
-    implicit def genericObjectEncoder[F[_], A, H](
-                                                   implicit
-                                                   generic: LabelledGeneric.Aux[A, H],
-                                                   hEncoder: Lazy[StreamEncoder[F, H]]
-                                                 ): StreamEncoder[F, A] =
+    implicit def genericObjectEncoder[F[_], A, H](implicit
+      generic: LabelledGeneric.Aux[A, H],
+      hEncoder: Lazy[StreamEncoder[F, H]]
+    ): StreamEncoder[F, A] =
       StreamEncoder.instance { value =>
         hEncoder.value.encode(generic.to(value)).cons1("{") ++ Stream("}")
       }
