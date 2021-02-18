@@ -17,7 +17,7 @@ val fs2Version = "2.5.0"
 val jawnVersion = "1.0.3"
 val previousCirceFs2Version = "0.11.0"
 
-val scalaTestVersion = "3.2.3"
+val scalaTestVersion = "3.2.4"
 val scalaTestPlusVersion = "3.2.2.0"
 
 def priorTo2_13(scalaVersion: String): Boolean =
