@@ -1,6 +1,6 @@
 # circe-fs2
 
-[![Build status](https://img.shields.io/travis/circe/circe-fs2/master.svg)](https://travis-ci.org/circe/circe-fs2)
+[![Build](https://github.com/circe/circe-fs2/workflows/Continuous%20Integration/badge.svg)](https://github.com/circe/circe-fs2/actions)
 [![Coverage status](https://img.shields.io/codecov/c/github/circe/circe-fs2/master.svg)](https://codecov.io/github/circe/circe-fs2)
 [![Gitter](https://img.shields.io/badge/gitter-join%20chat-green.svg)](https://gitter.im/circe/circe)
 [![Maven Central](https://img.shields.io/maven-central/v/io.circe/circe-fs2_2.12.svg)](https://maven-badges.herokuapp.com/maven-central/io.circe/circe-fs2_2.12)

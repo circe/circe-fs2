@@ -123,3 +123,18 @@ credentials ++= (
     password
   )
 ).toSeq
+
+ThisBuild / githubWorkflowJavaVersions := Seq("adopt@1.8")
+// No auto-publish atm. Remove this line to generate publish stage
+ThisBuild / githubWorkflowPublishTargetBranches := Seq.empty
+ThisBuild / githubWorkflowBuild := Seq(
+  WorkflowStep.Sbt(
+    List("clean", "coverage", "test", "coverageReport", "scalafmtCheckAll"),
+    id = None,
+    name = Some("Test")
+  ),
+  WorkflowStep.Use(
+    UseRef.Public("codecov", "codecov-action", "e156083f13aff6830c92fc5faa23505779fbf649"), // v1.2.1
+    name = Some("Upload code coverage")
+  )
+)
