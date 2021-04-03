@@ -2,6 +2,7 @@ package io.circe.fs2
 
 import _root_.fs2.{ Pipe, Stream, text }
 import cats.effect.IO
+import cats.effect.unsafe.implicits._
 import io.circe.{ DecodingFailure, Json, ParsingFailure }
 import io.circe.fs2.examples._
 import io.circe.generic.auto._
