@@ -1,9 +1,10 @@
 package io.circe
 
-import _root_.fs2.{ Chunk, Pipe, Stream }
+import _root_.fs2.{ Chunk, Pipe, RaiseThrowable, Stream }
 import cats.effect.Sync
 import io.circe.jawn.CirceSupportParser
 import org.typelevel.jawn.{ AsyncParser, ParseException }
+
 import scala.collection.Seq
 
 package object fs2 {
@@ -39,7 +40,7 @@ package object fs2 {
 
   final def byteParser[F[_]: Sync](mode: AsyncParser.Mode): Pipe[F, Byte, Json] = _.chunks.through(byteParserC(mode))
 
-  final def decoder[F[_]: Sync, A](implicit decode: Decoder[A]): Pipe[F, Json, A] =
+  final def decoder[F[_]: RaiseThrowable, A](implicit decode: Decoder[A]): Pipe[F, Json, A] =
     _.flatMap { json =>
       decode(json.hcursor) match {
         case Left(df) => Stream.raiseError(df)
