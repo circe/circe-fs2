@@ -17,7 +17,7 @@ val fs2Version = "3.0.2"
 val jawnVersion = "1.1.2"
 val previousCirceFs2Version = "0.11.0"
 
-val scalaTestVersion = "3.2.8"
+val scalaTestVersion = "3.2.9"
 val scalaTestPlusVersion = "3.2.2.0"
 
 val scala212 = "2.12.12"
