@@ -20,7 +20,7 @@ val previousCirceFs2Version = "0.11.0"
 val scalaTestVersion = "3.2.9"
 val scalaTestPlusVersion = "3.2.2.0"
 
-val scala212 = "2.12.12"
+val scala212 = "2.12.13"
 val scala213 = "2.13.6"
 
 ThisBuild / crossScalaVersions := Seq(scala212, scala213)
