@@ -9,9 +9,9 @@ name: Continuous Integration
 
 on:
   pull_request:
-    branches: ['*']
+    branches: ['**']
   push:
-    branches: ['*']
+    branches: ['**']
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -49,10 +49,10 @@ jobs:
           key: ${{ runner.os }}-sbt-cache-v2-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('project/build.properties') }}
 
       - name: Check that workflows are up to date
-        run: sbt ++${{ matrix.scala }} githubWorkflowCheck
+        run: sbt --client '++${{ matrix.scala }}; githubWorkflowCheck'
 
       - name: Test
-        run: sbt ++${{ matrix.scala }} clean coverage test coverageReport scalafmtCheckAll
+        run: sbt --client '++${{ matrix.scala }}; clean; coverage; test; coverageReport; scalafmtCheckAll'
 
       - name: Upload code coverage
         uses: codecov/codecov-action@e156083f13aff6830c92fc5faa23505779fbf649
