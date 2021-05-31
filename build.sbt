@@ -23,7 +23,7 @@ val scalaTestPlusVersion = "3.2.9.0"
 val scala212 = "2.12.14"
 val scala213 = "2.13.6"
 
-ThisBuild / crossScalaVersions := Seq(scala212, scala213)
+ThisBuild / crossScalaVersions := Seq(scala212, scala213, "3.0.0")
 
 def priorTo2_13(scalaVersion: String): Boolean =
   CrossVersion.partialVersion(scalaVersion) match {
@@ -52,7 +52,7 @@ val baseSettings = Seq(
     _.filterNot(Set("-Ywarn-unused-import"))
   },
   coverageHighlighting := true,
-  coverageEnabled := (if (priorTo2_13(scalaVersion.value)) coverageEnabled.value else false),
+  coverageEnabled := (if (scalaVersion.value.startsWith("2.13")) coverageEnabled.value else false),
   (scalastyleSources in Compile) ++= (unmanagedSourceDirectories in Compile).value
 )
 
