@@ -15,12 +15,12 @@ val compilerOptions = Seq(
 val circeVersion = "0.14.1"
 val fs2Version = "3.0.4"
 val jawnVersion = "1.1.2"
-val previousCirceFs2Version = "0.11.0"
+val previousCirceFs2Version = "0.13.0"
 
 val scalaTestVersion = "3.2.9"
-val scalaTestPlusVersion = "3.2.2.0"
+val scalaTestPlusVersion = "3.2.9.0"
 
-val scala212 = "2.12.12"
+val scala212 = "2.12.14"
 val scala213 = "2.13.6"
 
 ThisBuild / crossScalaVersions := Seq(scala212, scala213)
@@ -52,7 +52,6 @@ val baseSettings = Seq(
     _.filterNot(Set("-Ywarn-unused-import"))
   },
   coverageHighlighting := true,
-  coverageScalacPluginVersion := "1.3.1",
   coverageEnabled := (if (priorTo2_13(scalaVersion.value)) coverageEnabled.value else false),
   (scalastyleSources in Compile) ++= (unmanagedSourceDirectories in Compile).value
 )
@@ -73,7 +72,7 @@ val fs2 = project
       "io.circe" %% "circe-generic" % circeVersion % Test,
       "io.circe" %% "circe-testing" % circeVersion % Test,
       "org.scalatest" %% "scalatest" % scalaTestVersion % Test,
-      "org.scalatestplus" %% "scalacheck-1-14" % scalaTestPlusVersion % Test,
+      "org.scalatestplus" %% "scalacheck-1-15" % scalaTestPlusVersion % Test,
       "org.typelevel" %% "jawn-parser" % jawnVersion
     ),
     ghpagesNoJekyll := true,
