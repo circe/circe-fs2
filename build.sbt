@@ -14,7 +14,7 @@ val compilerOptions = Seq(
 
 val circeVersion = "0.14.1"
 val fs2Version = "3.0.6"
-val jawnVersion = "1.1.2"
+val jawnVersion = "1.2.0"
 val previousCirceFs2Version = "0.13.0"
 
 val scalaTestVersion = "3.2.9"
