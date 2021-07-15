@@ -116,6 +116,35 @@ class Fs2Suite extends CirceSuite {
       )
     }
 
+  "chunkDecoder" should "decode enumerated JSON values" in
+    forAll { (fooStdStream: StdStream[Foo], fooVector: Vector[Foo]) =>
+      val stream = serializeFoos(AsyncParser.UnwrapArray, fooStream(fooStdStream, fooVector))
+      val foos = fooStdStream ++ fooVector
+
+      assert(
+        stream
+          .through(stringArrayParser)
+          .through(chunkDecoder[IO, Foo])
+          .compile
+          .toVector
+          .attempt
+          .unsafeRunSync() === Right(foos.toVector)
+      )
+    }
+
+  "chunkDecoder" should "maintain chunk size" in
+    forAll { (fooStdStream: StdStream[Foo], fooVector: Vector[Foo]) =>
+      val chunkSize = 4
+      val stream = serializeFoos(AsyncParser.UnwrapArray, fooStream(fooStdStream, fooVector))
+      val x1 = stream.through(stringArrayParser).chunkMin(chunkSize).flatMap(c => Stream.chunk(c))
+      val chunkSizes = x1.through(chunkDecoder[IO, Foo]).chunks.map(_.size).compile.toList.unsafeRunSync()
+
+      if (chunkSizes.sum >= chunkSize)
+        assert(chunkSizes.head == chunkSize)
+      else
+        assert(chunkSizes.length <= 1)
+    }
+
   "stringArrayParser" should "return ParsingFailure" in {
     testParsingFailure(_.through(stringArrayParser))
   }
@@ -153,7 +182,23 @@ class Fs2Suite extends CirceSuite {
           .toVector
           .attempt
           .unsafeRunSync()
+        assert(result.isLeft && result.left.get.isInstanceOf[DecodingFailure])
+      }
+    }
 
+  "chunkDecoder" should "return DecodingFailure" in
+    forAll { (fooStdStream: StdStream[Foo], fooVector: Vector[Foo]) =>
+      sealed trait Foo2
+      case class Bar2(x: String) extends Foo2
+
+      whenever(fooStdStream.nonEmpty && fooVector.nonEmpty) {
+        val result = serializeFoos(AsyncParser.UnwrapArray, fooStream(fooStdStream, fooVector))
+          .through(stringArrayParser)
+          .through(chunkDecoder[IO, Foo2])
+          .compile
+          .toVector
+          .attempt
+          .unsafeRunSync()
         assert(result.isLeft && result.left.get.isInstanceOf[DecodingFailure])
       }
     }
