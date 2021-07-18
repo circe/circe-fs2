@@ -1,13 +1,22 @@
 package io.circe.fs2
 
-import _root_.fs2.{ Pipe, Stream, text }
+import _root_.fs2.Pipe
+import _root_.fs2.Stream
+import _root_.fs2.text
 import cats.effect.IO
-import cats.effect.unsafe.implicits._
-import io.circe.{ DecodingFailure, Json, ParsingFailure }
+import io.circe.DecodingFailure
+import io.circe.Json
+import io.circe.ParsingFailure
 import io.circe.fs2.examples._
 import io.circe.generic.auto._
 import io.circe.syntax._
+import org.scalacheck.Prop
+import org.scalacheck.effect.PropF
+import org.scalatest.compatible.Assertion
+import org.scalatest.enablers.WheneverAsserting
+import org.scalatest.exceptions.DiscardedEvaluationException
 import org.typelevel.jawn.AsyncParser
+
 import scala.collection.immutable.{ Stream => StdStream }
 
 class Fs2Suite extends CirceSuite {
@@ -34,14 +43,21 @@ class Fs2Suite extends CirceSuite {
   }
 
   "stringParser" should "parse single value" in {
-    forAll { (foo: Foo) =>
+    PropF.forAllF { (foo: Foo) =>
       val stream = serializeFoos(AsyncParser.SingleValue, Stream.emit(foo))
-      assert(
-        stream.through(stringParser(AsyncParser.SingleValue)).compile.toVector.attempt.unsafeRunSync() === Right(
-          Vector(foo.asJson)
+      stream
+        .through(stringParser(AsyncParser.SingleValue))
+        .compile
+        .toVector
+        .attempt
+        .map(r =>
+          assert(
+            r === Right(
+              Vector(foo.asJson)
+            )
+          )
         )
-      )
-    }
+    }.check().map(r => assert(r.passed))
   }
 
   "byteArrayParser" should "parse bytes wrapped in array" in {
@@ -53,31 +69,27 @@ class Fs2Suite extends CirceSuite {
   }
 
   "byteParser" should "parse single value" in {
-    forAll { (foo: Foo) =>
+    PropF.forAllF { (foo: Foo) =>
       val stream = serializeFoos(AsyncParser.SingleValue, Stream.emit(foo))
-      assert(
-        stream
-          .through(text.utf8Encode)
-          .through(byteParser(AsyncParser.SingleValue))
-          .compile
-          .toVector
-          .attempt
-          .unsafeRunSync() === Right(Vector(foo.asJson))
-      )
-    }
+      stream
+        .through(text.utf8Encode)
+        .through(byteParser(AsyncParser.SingleValue))
+        .compile
+        .toVector
+        .attempt
+        .map(r => assert(r === Right(Vector(foo.asJson))))
+    }.check().map(r => assert(r.passed))
   }
 
   "byteParser" should "parse single value, when run twice" in {
-    forAll { (foo: Foo) =>
+    PropF.forAllF { (foo: Foo) =>
       val stream = serializeFoos(AsyncParser.SingleValue, Stream.emit(foo))
 
       val parseOnce =
         stream.through(text.utf8Encode).through(byteParser(AsyncParser.SingleValue)).compile.toVector
 
-      parseOnce.attempt.unsafeRunSync()
-
-      assert(parseOnce.attempt.unsafeRunSync() == Right(Vector(foo.asJson)))
-    }
+      (parseOnce.attempt >> parseOnce.attempt).map(r => assert(r == Right(Vector(foo.asJson))))
+    }.check().map(r => assert(r.passed))
   }
 
   "byteArrayParserC" should "parse bytes wrapped in array" in {
@@ -89,32 +101,38 @@ class Fs2Suite extends CirceSuite {
   }
 
   "byteParserC" should "parse single value" in {
-    forAll { (foo: Foo) =>
+    PropF.forAllF { (foo: Foo) =>
       val stream = serializeFoos(AsyncParser.SingleValue, Stream.emit(foo))
-      assert(
-        stream
-          .through(text.utf8Encode)
-          .chunks
-          .through(byteParserC(AsyncParser.SingleValue))
-          .compile
-          .toVector
-          .attempt
-          .unsafeRunSync() === Right(Vector(foo.asJson))
-      )
-    }
+      stream
+        .through(text.utf8Encode)
+        .chunks
+        .through(byteParserC(AsyncParser.SingleValue))
+        .compile
+        .toVector
+        .attempt
+        .map(r => assert(r === Right(Vector(foo.asJson))))
+    }.check().map(r => assert(r.passed))
   }
 
   "decoder" should "decode enumerated JSON values" in
-    forAll { (fooStdStream: StdStream[Foo], fooVector: Vector[Foo]) =>
+    PropF.forAllF { (fooStdStream: StdStream[Foo], fooVector: Vector[Foo]) =>
       val stream = serializeFoos(AsyncParser.UnwrapArray, fooStream(fooStdStream, fooVector))
       val foos = fooStdStream ++ fooVector
 
-      assert(
-        stream.through(stringArrayParser).through(decoder[IO, Foo]).compile.toVector.attempt.unsafeRunSync() === Right(
-          foos.toVector
+      stream
+        .through(stringArrayParser)
+        .through(decoder[IO, Foo])
+        .compile
+        .toVector
+        .attempt
+        .map(r =>
+          assert(
+            r === Right(
+              foos.toVector
+            )
+          )
         )
-      )
-    }
+    }.check().map(r => assert(r.passed))
 
   "stringArrayParser" should "return ParsingFailure" in {
     testParsingFailure(_.through(stringArrayParser))
@@ -141,7 +159,7 @@ class Fs2Suite extends CirceSuite {
   }
 
   "decoder" should "return DecodingFailure" in
-    forAll { (fooStdStream: StdStream[Foo], fooVector: Vector[Foo]) =>
+    PropF.forAllF { (fooStdStream: StdStream[Foo], fooVector: Vector[Foo]) =>
       sealed trait Foo2
       case class Bar2(x: String) extends Foo2
 
@@ -152,29 +170,41 @@ class Fs2Suite extends CirceSuite {
           .compile
           .toVector
           .attempt
-          .unsafeRunSync()
 
-        assert(result.isLeft && result.left.get.isInstanceOf[DecodingFailure])
+        result.map(r => assert(r.isLeft && r.left.get.isInstanceOf[DecodingFailure]))
       }
-    }
+    }.check().map(r => assert(r.passed))
 
   private def testParser(mode: AsyncParser.Mode, through: Pipe[IO, String, Json]) =
-    forAll { (fooStdStream: StdStream[Foo], fooVector: Vector[Foo]) =>
+    PropF.forAllF { (fooStdStream: StdStream[Foo], fooVector: Vector[Foo]) =>
       val stream = serializeFoos(mode, fooStream(fooStdStream, fooVector))
       val foos = (fooStdStream ++ fooVector).map(_.asJson)
 
-      assert(stream.through(through).compile.toVector.attempt.unsafeRunSync() === Right(foos.toVector))
-    }
+      stream.through(through).compile.toVector.attempt.map(r => assert(r === Right(foos.toVector)))
+    }.check().asserting(r => assert(r.passed))
 
   private def testParsingFailure(through: Pipe[IO, String, Json]) =
-    forAll { (stringStdStream: StdStream[String], stringVector: Vector[String]) =>
-      val result = Stream("}")
-        .append(stringStream(stringStdStream, stringVector))
-        .through(through)
-        .compile
-        .toVector
-        .attempt
-        .unsafeRunSync()
-      assert(result.isLeft && result.left.get.isInstanceOf[ParsingFailure])
+    PropF.forAllF { (stringStdStream: StdStream[String], stringVector: Vector[String]) =>
+      val result =
+        Stream("}").append(stringStream(stringStdStream, stringVector)).through(through).compile.toVector.attempt
+      result.map(result => assert(result.isLeft && result.left.get.isInstanceOf[ParsingFailure]))
+    }.check().asserting(r => assert(r.passed))
+
+  private implicit def assertionToProp: IO[Assertion] => PropF[IO] = { assertion =>
+    assertion.as(PropF.Result[IO](Prop.True, Nil, Set.empty, Set.empty): PropF[IO]).handleError {
+      case _: DiscardedEvaluationException => PropF.Result[IO](Prop.Undecided, Nil, Set.empty, Set.empty)
+      case t                               => PropF.Result[IO](Prop.Exception(t), Nil, Set.empty, Set.empty)
     }
+  }
+
+  private implicit def assertingNatureOfIO: WheneverAsserting[IO[Assertion]] { type Result = IO[Assertion] } =
+    new WheneverAsserting[IO[Assertion]] {
+      type Result = IO[Assertion]
+      def whenever(condition: Boolean)(fun: => IO[Assertion]): IO[Assertion] =
+        if (!condition)
+          IO.raiseError[Assertion](new DiscardedEvaluationException)
+        else
+          fun
+    }
+
 }

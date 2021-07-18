@@ -1,18 +1,28 @@
 package io.circe.fs2
 
+import cats.effect.testing.scalatest.AssertingSyntax
+import cats.effect.testing.scalatest.EffectTestSupport
+import cats.effect.unsafe.IORuntime
 import cats.instances.AllInstances
-import cats.syntax.{ AllSyntax, EitherOps }
-import io.circe.testing.{ ArbitraryInstances, EqInstances }
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatestplus.scalacheck.{ Checkers, ScalaCheckDrivenPropertyChecks }
+import cats.syntax.AllSyntax
+import cats.syntax.EitherOps
+import io.circe.testing.ArbitraryInstances
+import io.circe.testing.EqInstances
+import org.scalatest.flatspec.AsyncFlatSpec
+import org.scalatestplus.scalacheck.Checkers
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import org.typelevel.discipline.Laws
+
 import scala.language.implicitConversions
+import cats.effect.unsafe.IORuntimeConfig
 
 /**
  * An opinionated stack of traits to improve consistency and reduce boilerplate in circe tests.
  */
 trait CirceSuite
-    extends AnyFlatSpec
+    extends AsyncFlatSpec
+    with AssertingSyntax
+    with EffectTestSupport
     with ScalaCheckDrivenPropertyChecks
     with AllInstances
     with AllSyntax
@@ -22,6 +32,8 @@ trait CirceSuite
     sys.error("Intentionally ambiguous implicit for Equalizer")
 
   implicit def prioritizedCatsSyntaxEither[A, B](eab: Either[A, B]): EitherOps[A, B] = new EitherOps(eab)
+
+  implicit def ioRuntime = IORuntime(executionContext, executionContext, IORuntime.global.scheduler, () => (), IORuntimeConfig())
 
   def checkLaws(name: String, ruleSet: Laws#RuleSet): Unit = ruleSet.all.properties.zipWithIndex.foreach {
     case ((id, prop), 0) => name should s"obey $id" in Checkers.check(prop)
