@@ -59,13 +59,21 @@ val baseSettings = Seq(
 )
 
 val allSettings = baseSettings ++ publishSettings
+val noPublishSettings = Seq(
+  publish := {},
+  publishLocal := {},
+  publishArtifact := false
+)
 
 val docMappingsApiDir = settingKey[String]("Subdirectory in site target directory for API docs")
 
-val fs2 = crossProject(JVMPlatform, JSPlatform)
+lazy val root = project.in(file(".")).settings(allSettings).settings(noPublishSettings).aggregate(fs2.jvm, fs2.js)
+
+lazy val fs2 = crossProject(JVMPlatform, JSPlatform)
   .crossType(CrossType.Pure)
-  .in(file("."))
+  .in(file("fs2"))
   .settings(allSettings)
+  .jsSettings(coverageEnabled := false)
   .settings(
     moduleName := "circe-fs2",
     mimaPreviousArtifacts := Set("io.circe" %% "circe-fs2" % previousCirceFs2Version),
@@ -138,7 +146,7 @@ ThisBuild / githubWorkflowJavaVersions := Seq("adopt@1.8")
 ThisBuild / githubWorkflowPublishTargetBranches := Seq.empty
 ThisBuild / githubWorkflowBuild := Seq(
   WorkflowStep.Sbt(
-    List("clean", "coverage", "fs2JVM / test", "fs2JS / test", "fs2JVM / coverageReport", "scalafmtCheckAll"),
+    List("clean", "coverage", "test", "coverageReport", "scalafmtCheckAll"),
     id = None,
     name = Some("Test")
   ),
