@@ -77,7 +77,7 @@ val fs2 = crossProject(JVMPlatform, JSPlatform)
       "org.scalatest" %%% "scalatest" % scalaTestVersion % Test,
       "org.scalatestplus" %%% "scalacheck-1-15" % scalaTestPlusVersion % Test,
       "org.typelevel" %%% "cats-effect-testing-scalatest" % catsEffectTestingVersion % Test,
-      "org.typelevel" %%% "scalacheck-effect" % scalacheckEffectVersion,
+      "org.typelevel" %%% "scalacheck-effect" % scalacheckEffectVersion % Test,
       "org.typelevel" %%% "jawn-parser" % jawnVersion
     ),
     ghpagesNoJekyll := true,
