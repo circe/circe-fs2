@@ -53,9 +53,12 @@ val baseSettings = Seq(
   scalacOptions in (Test, console) ~= {
     _.filterNot(Set("-Ywarn-unused-import"))
   },
-  coverageHighlighting := true,
-  coverageEnabled := (if (scalaVersion.value.startsWith("2.13")) coverageEnabled.value else false),
   (scalastyleSources in Compile) ++= (unmanagedSourceDirectories in Compile).value
+)
+
+val baseJVMSettings = Seq(
+  coverageHighlighting := true,
+  coverageEnabled := (if (scalaVersion.value.startsWith("2.13")) coverageEnabled.value else false)
 )
 
 val allSettings = baseSettings ++ publishSettings
@@ -66,6 +69,7 @@ val fs2 = crossProject(JVMPlatform, JSPlatform)
   .crossType(CrossType.Pure)
   .in(file("."))
   .settings(allSettings)
+  .jvmSettings(baseJVMSettings)
   .settings(
     moduleName := "circe-fs2",
     mimaPreviousArtifacts := Set("io.circe" %% "circe-fs2" % previousCirceFs2Version),
