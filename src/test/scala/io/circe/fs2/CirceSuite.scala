@@ -33,7 +33,8 @@ trait CirceSuite
 
   implicit def prioritizedCatsSyntaxEither[A, B](eab: Either[A, B]): EitherOps[A, B] = new EitherOps(eab)
 
-  implicit def ioRuntime = IORuntime(executionContext, executionContext, IORuntime.global.scheduler, () => (), IORuntimeConfig())
+  implicit def ioRuntime =
+    IORuntime(executionContext, executionContext, IORuntime.global.scheduler, () => (), IORuntimeConfig())
 
   def checkLaws(name: String, ruleSet: Laws#RuleSet): Unit = ruleSet.all.properties.zipWithIndex.foreach {
     case ((id, prop), 0) => name should s"obey $id" in Checkers.check(prop)

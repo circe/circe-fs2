@@ -52,7 +52,7 @@ jobs:
         run: sbt --client '++${{ matrix.scala }}; githubWorkflowCheck'
 
       - name: Test
-        run: sbt --client '++${{ matrix.scala }}; clean; fs2JVM / coverage; test; fs2JVM / coverageReport; scalafmtCheckAll'
+        run: sbt --client '++${{ matrix.scala }}; clean; coverage; fs2JVM / test; fs2JS / test; fs2JVM / coverageReport; scalafmtCheckAll'
 
       - name: Upload code coverage
         uses: codecov/codecov-action@e156083f13aff6830c92fc5faa23505779fbf649

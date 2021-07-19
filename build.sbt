@@ -138,7 +138,7 @@ ThisBuild / githubWorkflowJavaVersions := Seq("adopt@1.8")
 ThisBuild / githubWorkflowPublishTargetBranches := Seq.empty
 ThisBuild / githubWorkflowBuild := Seq(
   WorkflowStep.Sbt(
-    List("clean", "fs2JVM / coverage", "test", "fs2JVM / coverageReport", "scalafmtCheckAll"),
+    List("clean", "coverage", "fs2JVM / test", "fs2JS / test", "fs2JVM / coverageReport", "scalafmtCheckAll"),
     id = None,
     name = Some("Test")
   ),
