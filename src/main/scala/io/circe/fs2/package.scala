@@ -6,6 +6,7 @@ import io.circe.jawn.CirceSupportParser
 import org.typelevel.jawn.{ AsyncParser, ParseException }
 
 import scala.collection.Seq
+import cats.ApplicativeError
 
 package object fs2 {
   private[this] val supportParser: CirceSupportParser = new CirceSupportParser(None, true)
@@ -40,11 +41,30 @@ package object fs2 {
 
   final def byteParser[F[_]: Sync](mode: AsyncParser.Mode): Pipe[F, Byte, Json] = _.chunks.through(byteParserC(mode))
 
+  /* Decode json stream to a stream of `A`
+   *
+   * Lazily decodes elements and emits each resulting `A` as a singleton chunk. This stream "de-chunking" can have
+   * performance implications. As an alternative, `chunkDecoder` is available, with some caveats.
+   */
   final def decoder[F[_]: RaiseThrowable, A](implicit decode: Decoder[A]): Pipe[F, Json, A] =
     _.flatMap { json =>
       decode(json.hcursor) match {
         case Left(df) => Stream.raiseError(df)
         case Right(a) => Stream.emit(a)
+      }
+    }
+
+  /* Like `decoder` but operates on the original chunks in the stream.
+   *
+   * Preserving the chunk structure of the stream is more performant. However, this means that this pipe is not
+   * lazy on elements, but rather on the chunks. For example, `stream.chunkN(199).through(chunkDecoder[F, A]).take(400)`
+   * would decode 597 elements (3 chunks worth) in order to accumulate 400 `A`
+   */
+  final def chunkDecoder[F[_], A](implicit decode: Decoder[A], ev: ApplicativeError[F, Throwable]): Pipe[F, Json, A] =
+    _.evalMapChunk { json =>
+      decode(json.hcursor) match {
+        case Left(df) => ev.raiseError[A](df)
+        case Right(a) => ev.pure(a)
       }
     }
 }
