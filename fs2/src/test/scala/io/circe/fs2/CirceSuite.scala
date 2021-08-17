@@ -1,18 +1,28 @@
 package io.circe.fs2
 
+import cats.effect.testing.scalatest.AssertingSyntax
+import cats.effect.testing.scalatest.AsyncIOSpec
+import cats.effect.testing.scalatest.EffectTestSupport
 import cats.instances.AllInstances
-import cats.syntax.{ AllSyntax, EitherOps }
-import io.circe.testing.{ ArbitraryInstances, EqInstances }
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatestplus.scalacheck.{ Checkers, ScalaCheckDrivenPropertyChecks }
+import cats.syntax.AllSyntax
+import cats.syntax.EitherOps
+import io.circe.testing.ArbitraryInstances
+import io.circe.testing.EqInstances
+import org.scalatest.flatspec.AsyncFlatSpec
+import org.scalatestplus.scalacheck.Checkers
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import org.typelevel.discipline.Laws
+
 import scala.language.implicitConversions
 
 /**
  * An opinionated stack of traits to improve consistency and reduce boilerplate in circe tests.
  */
 trait CirceSuite
-    extends AnyFlatSpec
+    extends AsyncFlatSpec
+    with AsyncIOSpec
+    with AssertingSyntax
+    with EffectTestSupport
     with ScalaCheckDrivenPropertyChecks
     with AllInstances
     with AllSyntax

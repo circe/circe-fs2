@@ -12,13 +12,15 @@ val compilerOptions = Seq(
   "-Ywarn-numeric-widen"
 )
 
-val circeVersion = "0.14.1"
+val circeVersion = "0.15.0-M1"
 val fs2Version = "3.1.0"
 val jawnVersion = "1.2.0"
 val previousCirceFs2Version = "0.13.0"
 
 val scalaTestVersion = "3.2.9"
 val scalaTestPlusVersion = "3.2.9.0"
+val catsEffectTestingVersion = "1.2.0"
+val scalacheckEffectVersion = "1.0.2"
 
 val scala212 = "2.12.14"
 val scala213 = "2.13.6"
@@ -57,23 +59,34 @@ val baseSettings = Seq(
 )
 
 val allSettings = baseSettings ++ publishSettings
+val noPublishSettings = Seq(
+  publish := {},
+  publishLocal := {},
+  publishArtifact := false
+)
 
 val docMappingsApiDir = settingKey[String]("Subdirectory in site target directory for API docs")
 
-val fs2 = project
-  .in(file("."))
+lazy val root = project.in(file(".")).settings(allSettings).settings(noPublishSettings).aggregate(fs2.jvm, fs2.js)
+
+lazy val fs2 = crossProject(JVMPlatform, JSPlatform)
+  .crossType(CrossType.Pure)
+  .in(file("fs2"))
   .settings(allSettings)
+  .jsSettings(coverageEnabled := false)
   .settings(
     moduleName := "circe-fs2",
     mimaPreviousArtifacts := Set("io.circe" %% "circe-fs2" % previousCirceFs2Version),
     libraryDependencies ++= Seq(
-      "co.fs2" %% "fs2-core" % fs2Version,
-      "io.circe" %% "circe-jawn" % circeVersion,
-      "io.circe" %% "circe-generic" % circeVersion % Test,
-      "io.circe" %% "circe-testing" % circeVersion % Test,
-      "org.scalatest" %% "scalatest" % scalaTestVersion % Test,
-      "org.scalatestplus" %% "scalacheck-1-15" % scalaTestPlusVersion % Test,
-      "org.typelevel" %% "jawn-parser" % jawnVersion
+      "co.fs2" %%% "fs2-core" % fs2Version,
+      "io.circe" %%% "circe-jawn" % circeVersion,
+      "io.circe" %%% "circe-generic" % circeVersion % Test,
+      "io.circe" %%% "circe-testing" % circeVersion % Test,
+      "org.scalatest" %%% "scalatest" % scalaTestVersion % Test,
+      "org.scalatestplus" %%% "scalacheck-1-15" % scalaTestPlusVersion % Test,
+      "org.typelevel" %%% "cats-effect-testing-scalatest" % catsEffectTestingVersion % Test,
+      "org.typelevel" %%% "scalacheck-effect" % scalacheckEffectVersion % Test,
+      "org.typelevel" %%% "jawn-parser" % jawnVersion
     ),
     ghpagesNoJekyll := true,
     docMappingsApiDir := "api",
