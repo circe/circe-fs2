@@ -134,6 +134,29 @@ class Fs2Suite extends CirceSuite {
         )
     }.check().map(r => assert(r.passed))
 
+  "chunkDecoder" should "decode enumerated JSON values" in
+    PropF.forAllF { (fooStdStream: StdStream[Foo], fooVector: Vector[Foo]) =>
+      val stream = serializeFoos(AsyncParser.UnwrapArray, fooStream(fooStdStream, fooVector))
+      val foos = fooStdStream ++ fooVector
+
+      val result = stream.through(stringArrayParser).through(chunkDecoder[IO, Foo]).compile.toVector.attempt
+
+      result.map(r => assert(r === Right(foos.toVector)))
+    }.check().map(r => assert(r.passed))
+
+  "chunkDecoder" should "maintain chunk size" in
+    PropF.forAllF { (fooStdStream: StdStream[Foo], fooVector: Vector[Foo]) =>
+      val chunkSize = 4
+      val stream = serializeFoos(AsyncParser.UnwrapArray, fooStream(fooStdStream, fooVector))
+      val x1 = stream.through(stringArrayParser).chunkMin(chunkSize).flatMap(c => Stream.chunk(c))
+      x1.through(chunkDecoder[IO, Foo]).chunks.map(_.size).compile.toList.map { chunkSizes =>
+        if (chunkSizes.sum >= chunkSize)
+          assert(chunkSizes.head == chunkSize)
+        else
+          assert(chunkSizes.length <= 1)
+      }
+    }.check().map(r => assert(r.passed))
+
   "stringArrayParser" should "return ParsingFailure" in {
     testParsingFailure(_.through(stringArrayParser))
   }
@@ -171,6 +194,22 @@ class Fs2Suite extends CirceSuite {
           .toVector
           .attempt
 
+        result.map(r => assert(r.isLeft && r.left.get.isInstanceOf[DecodingFailure]))
+      }
+    }.check().map(r => assert(r.passed))
+
+  "chunkDecoder" should "return DecodingFailure" in
+    PropF.forAllF { (fooStdStream: StdStream[Foo], fooVector: Vector[Foo]) =>
+      sealed trait Foo2
+      case class Bar2(x: String) extends Foo2
+
+      whenever(fooStdStream.nonEmpty && fooVector.nonEmpty) {
+        val result = serializeFoos(AsyncParser.UnwrapArray, fooStream(fooStdStream, fooVector))
+          .through(stringArrayParser)
+          .through(chunkDecoder[IO, Foo2])
+          .compile
+          .toVector
+          .attempt
         result.map(r => assert(r.isLeft && r.left.get.isInstanceOf[DecodingFailure]))
       }
     }.check().map(r => assert(r.passed))
