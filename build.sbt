@@ -20,7 +20,7 @@ val previousCirceFs2Version = "0.13.0"
 val scalaTestVersion = "3.2.10"
 val scalaTestPlusVersion = "3.2.10.0"
 val catsEffectTestingVersion = "1.3.0"
-val scalacheckEffectVersion = "1.0.2"
+val scalacheckEffectVersion = "1.0.3"
 
 val scala212 = "2.12.14"
 val scala213 = "2.13.6"
