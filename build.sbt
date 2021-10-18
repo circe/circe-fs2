@@ -25,7 +25,7 @@ val scalacheckEffectVersion = "1.0.3"
 val scala212 = "2.12.14"
 val scala213 = "2.13.6"
 
-ThisBuild / crossScalaVersions := Seq(scala212, scala213, "3.0.2")
+ThisBuild / crossScalaVersions := Seq(scala212, scala213, "3.1.0")
 
 def priorTo2_13(scalaVersion: String): Boolean =
   CrossVersion.partialVersion(scalaVersion) match {
