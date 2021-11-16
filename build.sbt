@@ -13,8 +13,8 @@ val compilerOptions = Seq(
 )
 
 val circeVersion = "0.15.0-M1"
-val fs2Version = "3.2.2"
-val jawnVersion = "1.2.0"
+val fs2Version = "3.1.6"
+val jawnVersion = "1.3.0"
 val previousCirceFs2Version = "0.13.0"
 
 val scalaTestVersion = "3.2.10"
@@ -22,10 +22,10 @@ val scalaTestPlusVersion = "3.2.10.0"
 val catsEffectTestingVersion = "1.3.0"
 val scalacheckEffectVersion = "1.0.3"
 
-val scala212 = "2.12.14"
+val scala212 = "2.12.15"
 val scala213 = "2.13.6"
 
-ThisBuild / crossScalaVersions := Seq(scala212, scala213, "3.0.2")
+ThisBuild / crossScalaVersions := Seq(scala212, scala213, "3.1.0")
 
 def priorTo2_13(scalaVersion: String): Boolean =
   CrossVersion.partialVersion(scalaVersion) match {
