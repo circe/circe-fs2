@@ -13,13 +13,13 @@ val compilerOptions = Seq(
 )
 
 val circeVersion = "0.15.0-M1"
-val fs2Version = "3.1.6"
-val jawnVersion = "1.2.0"
+val fs2Version = "3.2.4"
+val jawnVersion = "1.3.2"
 val previousCirceFs2Version = "0.13.0"
 
 val scalaTestVersion = "3.2.10"
 val scalaTestPlusVersion = "3.2.10.0"
-val catsEffectTestingVersion = "1.3.0"
+val catsEffectTestingVersion = "1.4.0"
 val scalacheckEffectVersion = "1.0.3"
 
 val scala212 = "2.12.15"
