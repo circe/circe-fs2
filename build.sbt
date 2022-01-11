@@ -17,10 +17,10 @@ val fs2Version = "3.2.4"
 val jawnVersion = "1.3.2"
 val previousCirceFs2Version = "0.13.0"
 
-val scalaTestVersion = "3.2.11"
-val scalaTestPlusVersion = "3.2.11.0"
+val munitVersion = "0.7.29"
 val catsEffectTestingVersion = "1.4.0"
 val scalacheckEffectVersion = "1.0.3"
+val munitEffectVersion = "1.0.3"
 
 val scala212 = "2.12.15"
 val scala213 = "2.13.8"
@@ -82,10 +82,9 @@ lazy val fs2 = crossProject(JVMPlatform, JSPlatform)
       "io.circe" %%% "circe-jawn" % circeVersion,
       "io.circe" %%% "circe-generic" % circeVersion % Test,
       "io.circe" %%% "circe-testing" % circeVersion % Test,
-      "org.scalatest" %%% "scalatest" % scalaTestVersion % Test,
-      "org.scalatestplus" %%% "scalacheck-1-15" % scalaTestPlusVersion % Test,
-      "org.typelevel" %%% "cats-effect-testing-scalatest" % catsEffectTestingVersion % Test,
-      "org.typelevel" %%% "scalacheck-effect" % scalacheckEffectVersion % Test,
+      "org.scalameta" %% "munit-scalacheck" % munitVersion % Test,
+      "org.typelevel" %% "scalacheck-effect-munit" % scalacheckEffectVersion % Test,
+      "org.typelevel" %%% "munit-cats-effect-3" % munitEffectVersion % Test,
       "org.typelevel" %%% "jawn-parser" % jawnVersion
     ),
     ghpagesNoJekyll := true,
