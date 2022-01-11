@@ -82,8 +82,8 @@ lazy val fs2 = crossProject(JVMPlatform, JSPlatform)
       "io.circe" %%% "circe-jawn" % circeVersion,
       "io.circe" %%% "circe-generic" % circeVersion % Test,
       "io.circe" %%% "circe-testing" % circeVersion % Test,
-      "org.scalameta" %% "munit-scalacheck" % munitVersion % Test,
-      "org.typelevel" %% "scalacheck-effect-munit" % scalacheckEffectVersion % Test,
+      "org.scalameta" %%% "munit-scalacheck" % munitVersion % Test,
+      "org.typelevel" %%% "scalacheck-effect-munit" % scalacheckEffectVersion % Test,
       "org.typelevel" %%% "munit-cats-effect-3" % munitEffectVersion % Test,
       "org.typelevel" %%% "jawn-parser" % jawnVersion
     ),
