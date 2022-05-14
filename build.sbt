@@ -29,8 +29,8 @@ ThisBuild / crossScalaVersions := Seq(scala212, scala213, "3.1.0")
 
 def priorTo2_13(scalaVersion: String): Boolean =
   CrossVersion.partialVersion(scalaVersion) match {
-    case Some((2, minor)) if minor < 13 => true
-    case _                              => false
+    case Some(2, minor) if minor < 13 => true
+    case _                            => false
   }
 
 val baseSettings = Seq(
