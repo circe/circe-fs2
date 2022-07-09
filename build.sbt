@@ -22,7 +22,7 @@ val scalaTestPlusVersion = "3.2.11.0"
 val catsEffectTestingVersion = "1.4.0"
 val scalacheckEffectVersion = "1.0.3"
 
-val scala212 = "2.12.15"
+val scala212 = "2.12.16"
 val scala213 = "2.13.8"
 
 ThisBuild / crossScalaVersions := Seq(scala212, scala213, "3.1.0")
