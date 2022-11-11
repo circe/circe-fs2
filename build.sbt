@@ -1,5 +1,5 @@
 ThisBuild / tlBaseVersion := "0.14"
-ThisBuild / circeRootOfCodeCoverage := Some("rootJVM")
+ThisBuild / circeRootOfCodeCoverage := None
 
 val circeVersion = "0.15.0-M1"
 val fs2Version = "3.2.5"
