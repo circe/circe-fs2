@@ -28,7 +28,6 @@ lazy val fs2 = crossProject(JVMPlatform, JSPlatform)
     libraryDependencies ++= Seq(
       "co.fs2" %%% "fs2-core" % fs2Version,
       "io.circe" %%% "circe-jawn" % circeVersion,
-      "org.typelevel" %% "scalac-compat-annotation" % "0.1.0" % Test,
       "io.circe" %%% "circe-generic" % circeVersion % Test,
       "io.circe" %%% "circe-testing" % circeVersion % Test,
       "org.scalatest" %%% "scalatest" % scalaTestVersion % Test,
