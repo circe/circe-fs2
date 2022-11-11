@@ -9,3 +9,6 @@ target/
 .classpath
 .bsp/
 tmp/
+.metals
+.vscode
+metals.sbt
