@@ -3,15 +3,15 @@ ThisBuild / circeRootOfCodeCoverage := None
 ThisBuild / startYear := Some(2017)
 ThisBuild / scalafixScalaBinaryVersion := "2.12"
 
-val circeVersion = "0.15.0-M1"
-val fs2Version = "3.2.5"
-val jawnVersion = "1.3.2"
+val circeVersion = "0.14.3"
+val fs2Version = "3.3.0"
+val jawnVersion = "1.4.0"
 val previousCirceFs2Version = "0.13.0"
 
 val scalaTestVersion = "3.2.14"
 val scalaTestPlusVersion = "3.2.14.0"
 val catsEffectTestingVersion = "1.4.0"
-val scalacheckEffectVersion = "1.0.3"
+val scalacheckEffectVersion = "2.0.0-M2"
 
 val scala212 = "2.12.17"
 val scala213 = "2.13.10"
