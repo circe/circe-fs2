@@ -1,7 +1,5 @@
 ThisBuild / tlBaseVersion := "0.14"
-ThisBuild / circeRootOfCodeCoverage := None
 ThisBuild / startYear := Some(2017)
-ThisBuild / scalafixScalaBinaryVersion := "2.12"
 
 ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 
