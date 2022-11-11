@@ -18,9 +18,12 @@ package io.circe.fs2
 
 import cats.Eq
 import cats.instances.AllInstances
-import io.circe.{ Decoder, Encoder, Json }
+import io.circe.Decoder
+import io.circe.Encoder
+import io.circe.Json
 import io.circe.testing.ArbitraryInstances
-import org.scalacheck.{ Arbitrary, Gen }
+import org.scalacheck.Arbitrary
+import org.scalacheck.Gen
 
 package object examples extends AllInstances with ArbitraryInstances {
   implicit val eqThrowable: Eq[Throwable] = Eq.fromUniversalEquals
