@@ -16,13 +16,17 @@
 
 package io.circe
 
-import _root_.fs2.{ Chunk, Pipe, RaiseThrowable, Stream }
+import _root_.fs2.Chunk
+import _root_.fs2.Pipe
+import _root_.fs2.RaiseThrowable
+import _root_.fs2.Stream
+import cats.ApplicativeError
 import cats.effect.Sync
 import io.circe.jawn.CirceSupportParser
-import org.typelevel.jawn.{ AsyncParser, ParseException }
+import org.typelevel.jawn.AsyncParser
+import org.typelevel.jawn.ParseException
 
 import scala.collection.Seq
-import cats.ApplicativeError
 
 package object fs2 {
   private[this] val supportParser: CirceSupportParser = new CirceSupportParser(None, true)

@@ -16,11 +16,18 @@
 
 package io.circe.fs2
 
-import _root_.fs2.{ Chunk, Pipe, Pull, RaiseThrowable, Stream }
+import _root_.fs2.Chunk
+import _root_.fs2.Pipe
+import _root_.fs2.Pull
+import _root_.fs2.RaiseThrowable
+import _root_.fs2.Stream
 import cats.effect.Sync
-import io.circe.{ Json, ParsingFailure }
+import io.circe.Json
+import io.circe.ParsingFailure
 import io.circe.jawn.CirceSupportParser
-import org.typelevel.jawn.{ AsyncParser, ParseException }
+import org.typelevel.jawn.AsyncParser
+import org.typelevel.jawn.ParseException
+
 import scala.collection.Seq
 
 private[fs2] abstract class ParsingPipe[F[_]: Sync, S](supportParser: CirceSupportParser) extends Pipe[F, S, Json] {
