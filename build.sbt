@@ -3,6 +3,8 @@ ThisBuild / circeRootOfCodeCoverage := None
 ThisBuild / startYear := Some(2017)
 ThisBuild / scalafixScalaBinaryVersion := "2.12"
 
+ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
+
 val circeVersion = "0.14.3"
 val fs2Version = "3.3.0"
 val jawnVersion = "1.4.0"
@@ -10,7 +12,7 @@ val previousCirceFs2Version = "0.13.0"
 
 val scalaTestVersion = "3.2.14"
 val scalaTestPlusVersion = "3.2.14.0"
-val catsEffectTestingVersion = "1.4.0"
+val catsEffectTestingVersion = "1.5-852166f-SNAPSHOT"
 val scalacheckEffectVersion = "2.0.0-M2"
 
 val scala212 = "2.12.17"
@@ -21,7 +23,7 @@ ThisBuild / crossScalaVersions := Seq(scala212, scala213, "3.2.1")
 
 lazy val root = tlCrossRootProject.aggregate(fs2)
 
-lazy val fs2 = crossProject(JVMPlatform, JSPlatform)
+lazy val fs2 = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .crossType(CrossType.Pure)
   .in(file("fs2"))
   .settings(
@@ -38,6 +40,6 @@ lazy val fs2 = crossProject(JVMPlatform, JSPlatform)
       "org.typelevel" %%% "jawn-parser" % jawnVersion
     )
   )
-  .jsSettings(
+  .platformsSettings(JSPlatform, NativePlatform)(
     tlVersionIntroduced := List("2.12", "2.13", "3").map(_ -> "0.14.1").toMap
   )
