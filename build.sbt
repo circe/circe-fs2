@@ -37,3 +37,6 @@ lazy val fs2 = crossProject(JVMPlatform, JSPlatform)
       "org.typelevel" %%% "jawn-parser" % jawnVersion
     )
   )
+  .jsSettings(
+    tlVersionIntroduced := List("2.12", "2.13", "3").map(_ -> "0.14.1").toMap
+  )
