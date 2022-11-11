@@ -80,18 +80,18 @@ class Fs2Suite extends CirceSuite {
   }
 
   "byteArrayParser" should "parse bytes wrapped in array" in {
-    testParser(AsyncParser.UnwrapArray, _.through(text.utf8Encode).through(byteArrayParser))
+    testParser(AsyncParser.UnwrapArray, _.through(text.utf8.encode).through(byteArrayParser))
   }
 
   "byteStreamParser" should "parse bytes delimited by new lines" in {
-    testParser(AsyncParser.ValueStream, _.through(text.utf8Encode).through(byteStreamParser))
+    testParser(AsyncParser.ValueStream, _.through(text.utf8.encode).through(byteStreamParser))
   }
 
   "byteParser" should "parse single value" in {
     PropF.forAllF { (foo: Foo) =>
       val stream = serializeFoos(AsyncParser.SingleValue, Stream.emit(foo))
       stream
-        .through(text.utf8Encode)
+        .through(text.utf8.encode)
         .through(byteParser(AsyncParser.SingleValue))
         .compile
         .toVector
@@ -105,25 +105,25 @@ class Fs2Suite extends CirceSuite {
       val stream = serializeFoos(AsyncParser.SingleValue, Stream.emit(foo))
 
       val parseOnce =
-        stream.through(text.utf8Encode).through(byteParser(AsyncParser.SingleValue)).compile.toVector
+        stream.through(text.utf8.encode).through(byteParser(AsyncParser.SingleValue)).compile.toVector
 
       (parseOnce.attempt >> parseOnce.attempt).map(r => assert(r == Right(Vector(foo.asJson))))
     }.check().map(r => assert(r.passed))
   }
 
   "byteArrayParserC" should "parse bytes wrapped in array" in {
-    testParser(AsyncParser.UnwrapArray, _.through(text.utf8Encode).chunks.through(byteArrayParserC))
+    testParser(AsyncParser.UnwrapArray, _.through(text.utf8.encode).chunks.through(byteArrayParserC))
   }
 
   "byteStreamParserC" should "parse bytes delimited by new lines" in {
-    testParser(AsyncParser.ValueStream, _.through(text.utf8Encode).chunks.through(byteStreamParserC))
+    testParser(AsyncParser.ValueStream, _.through(text.utf8.encode).chunks.through(byteStreamParserC))
   }
 
   "byteParserC" should "parse single value" in {
     PropF.forAllF { (foo: Foo) =>
       val stream = serializeFoos(AsyncParser.SingleValue, Stream.emit(foo))
       stream
-        .through(text.utf8Encode)
+        .through(text.utf8.encode)
         .chunks
         .through(byteParserC(AsyncParser.SingleValue))
         .compile
@@ -185,19 +185,19 @@ class Fs2Suite extends CirceSuite {
   }
 
   "byteArrayParser" should "return ParsingFailure" in {
-    testParsingFailure(_.through(text.utf8Encode).through(byteArrayParser))
+    testParsingFailure(_.through(text.utf8.encode).through(byteArrayParser))
   }
 
   "byteStreamParser" should "return ParsingFailure" in {
-    testParsingFailure(_.through(text.utf8Encode).through(byteStreamParser))
+    testParsingFailure(_.through(text.utf8.encode).through(byteStreamParser))
   }
 
   "byteArrayParserC" should "return ParsingFailure" in {
-    testParsingFailure(_.through(text.utf8Encode).chunks.through(byteArrayParserC))
+    testParsingFailure(_.through(text.utf8.encode).chunks.through(byteArrayParserC))
   }
 
   "byteStreamParserC" should "return ParsingFailure" in {
-    testParsingFailure(_.through(text.utf8Encode).chunks.through(byteStreamParserC))
+    testParsingFailure(_.through(text.utf8.encode).chunks.through(byteStreamParserC))
   }
 
   "decoder" should "return DecodingFailure" in
