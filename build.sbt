@@ -1,5 +1,6 @@
 ThisBuild / tlBaseVersion := "0.14"
 ThisBuild / circeRootOfCodeCoverage := None
+ThisBuild / startYear := Some(2017)
 
 val circeVersion = "0.15.0-M1"
 val fs2Version = "3.2.5"
