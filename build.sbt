@@ -12,7 +12,7 @@ val scalaTestPlusVersion = "3.2.11.0"
 val catsEffectTestingVersion = "1.4.0"
 val scalacheckEffectVersion = "1.0.3"
 
-val scala212 = "2.12.15"
+val scala212 = "2.12.17"
 val scala213 = "2.13.8"
 
 ThisBuild / scalaVersion := scala213
