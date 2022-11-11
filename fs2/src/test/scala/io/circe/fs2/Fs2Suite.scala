@@ -16,9 +16,12 @@ import org.scalatest.compatible.Assertion
 import org.scalatest.enablers.WheneverAsserting
 import org.scalatest.exceptions.DiscardedEvaluationException
 import org.typelevel.jawn.AsyncParser
+import org.typelevel.scalaccompat.annotation._
 
 import scala.collection.immutable.{ Stream => StdStream }
 
+@nowarn213
+@nowarn3
 class Fs2Suite extends CirceSuite {
   def fooStream(fooStdStream: StdStream[Foo], fooVector: Vector[Foo]): Stream[IO, Foo] =
     Stream.emits(fooStdStream).append(Stream.emits(fooVector))

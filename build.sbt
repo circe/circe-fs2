@@ -14,7 +14,8 @@ val scalacheckEffectVersion = "1.0.3"
 val scala212 = "2.12.15"
 val scala213 = "2.13.8"
 
-ThisBuild / crossScalaVersions := Seq(scala212, scala213, "3.1.0")
+ThisBuild / scalaVersion := scala213
+ThisBuild / crossScalaVersions := Seq(scala212, scala213, "3.2.1")
 
 lazy val root = tlCrossRootProject.aggregate(fs2)
 
@@ -26,6 +27,7 @@ lazy val fs2 = crossProject(JVMPlatform, JSPlatform)
     libraryDependencies ++= Seq(
       "co.fs2" %%% "fs2-core" % fs2Version,
       "io.circe" %%% "circe-jawn" % circeVersion,
+      "org.typelevel" %% "scalac-compat-annotation" % "0.1.0" % Test,
       "io.circe" %%% "circe-generic" % circeVersion % Test,
       "io.circe" %%% "circe-testing" % circeVersion % Test,
       "org.scalatest" %%% "scalatest" % scalaTestVersion % Test,

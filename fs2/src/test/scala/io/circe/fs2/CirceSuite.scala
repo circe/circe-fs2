@@ -13,8 +13,6 @@ import org.scalatestplus.scalacheck.Checkers
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import org.typelevel.discipline.Laws
 
-import scala.language.implicitConversions
-
 /**
  * An opinionated stack of traits to improve consistency and reduce boilerplate in circe tests.
  */
