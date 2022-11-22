@@ -4,7 +4,7 @@ ThisBuild / startYear := Some(2017)
 ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 
 val circeVersion = "0.14.3"
-val fs2Version = "3.3.0"
+val fs2Version = "3.4.0"
 val jawnVersion = "1.4.0"
 val previousCirceFs2Version = "0.13.0"
 
