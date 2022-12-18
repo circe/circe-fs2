@@ -16,12 +16,16 @@
 
 package io.circe.fs2
 
-import _root_.fs2.{ Pipe, Stream, text }
+import _root_.fs2.Pipe
+import _root_.fs2.Stream
+import _root_.fs2.text
 import cats.effect.IO
+import io.circe.DecodingFailure
+import io.circe.Json
+import io.circe.ParsingFailure
 import io.circe.fs2.examples._
 import io.circe.generic.auto._
 import io.circe.syntax._
-import io.circe.{ DecodingFailure, Json, ParsingFailure }
 import org.scalacheck.effect.PropF
 import org.typelevel.jawn.AsyncParser
 

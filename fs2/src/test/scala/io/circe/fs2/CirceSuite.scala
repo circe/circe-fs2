@@ -16,8 +16,10 @@
 
 package io.circe.fs2
 
-import cats.syntax.{ AllSyntax, EitherOps }
-import munit.{ CatsEffectSuite, ScalaCheckEffectSuite }
+import cats.syntax.AllSyntax
+import cats.syntax.EitherOps
+import munit.CatsEffectSuite
+import munit.ScalaCheckEffectSuite
 
 /**
  * An opinionated stack of traits to improve consistency and reduce boilerplate in circe tests.
