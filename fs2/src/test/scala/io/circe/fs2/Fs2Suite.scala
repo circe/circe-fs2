@@ -55,19 +55,8 @@ class Fs2Suite extends CirceSuite {
   test("stringParser should parse single value") {
     PropF.forAllF { (foo: Foo) =>
       val stream = serializeFoos(AsyncParser.SingleValue, Stream.emit(foo))
-      stream
-        .through(stringParser(AsyncParser.SingleValue))
-        .compile
-        .toVector
-        .attempt
-        .map(r =>
-          assert(
-            r === Right(
-              Vector(foo.asJson)
-            )
-          )
-        )
-    }.check().map(r => assert(r.passed))
+      stream.through(stringParser(AsyncParser.SingleValue)).compile.toVector.assertEquals(Vector(foo.asJson))
+    }
   }
 
   test("byteArrayParser should parse bytes wrapped in array") {
@@ -86,9 +75,8 @@ class Fs2Suite extends CirceSuite {
         .through(byteParser(AsyncParser.SingleValue))
         .compile
         .toVector
-        .attempt
-        .map(r => assert(r === Right(Vector(foo.asJson))))
-    }.check().map(r => assert(r.passed))
+        .assertEquals(Vector(foo.asJson))
+    }
   }
 
   test("byteParser should parse single value, when run twice") {
@@ -98,8 +86,8 @@ class Fs2Suite extends CirceSuite {
       val parseOnce =
         stream.through(text.utf8.encode).through(byteParser(AsyncParser.SingleValue)).compile.toVector
 
-      (parseOnce.attempt >> parseOnce.attempt).map(r => assert(r == Right(Vector(foo.asJson))))
-    }.check().map(r => assert(r.passed))
+      (parseOnce >> parseOnce).assertEquals(Vector(foo.asJson))
+    }
   }
 
   test("byteArrayParserC should parse bytes wrapped in array") {
@@ -119,8 +107,7 @@ class Fs2Suite extends CirceSuite {
         .through(byteParserC(AsyncParser.SingleValue))
         .compile
         .toVector
-        .attempt
-        .map(r => assert(r === Right(Vector(foo.asJson))))
+        .assertEquals(Vector(foo.asJson))
     }
   }
 
@@ -129,20 +116,8 @@ class Fs2Suite extends CirceSuite {
       val stream = serializeFoos(AsyncParser.UnwrapArray, fooStream(fooStdStream, fooVector))
       val foos = fooStdStream ++ fooVector
 
-      stream
-        .through(stringArrayParser)
-        .through(decoder[IO, Foo])
-        .compile
-        .toVector
-        .attempt
-        .map(r =>
-          assert(
-            r === Right(
-              foos.toVector
-            )
-          )
-        )
-    }.check().map(r => assert(r.passed))
+      stream.through(stringArrayParser).through(decoder[IO, Foo]).compile.toVector.assertEquals(foos.toVector)
+    }
   }
 
   test("chunkDecoder should decode enumerated JSON values") {
@@ -150,10 +125,10 @@ class Fs2Suite extends CirceSuite {
       val stream = serializeFoos(AsyncParser.UnwrapArray, fooStream(fooStdStream, fooVector))
       val foos = fooStdStream ++ fooVector
 
-      val result = stream.through(stringArrayParser).through(chunkDecoder[IO, Foo]).compile.toVector.attempt
+      val result = stream.through(stringArrayParser).through(chunkDecoder[IO, Foo]).compile.toVector
 
-      result.map(r => assert(r === Right(foos.toVector)))
-    }.check().map(r => assert(r.passed))
+      result.assertEquals(foos.toVector)
+    }
   }
 
   test("chunkDecoder should maintain chunk size") {
@@ -167,7 +142,7 @@ class Fs2Suite extends CirceSuite {
         else
           assert(chunkSizes.length <= 1)
       }
-    }.check().map(r => assert(r.passed))
+    }
   }
 
   test("stringArrayParser should return ParsingFailure") {
@@ -205,10 +180,9 @@ class Fs2Suite extends CirceSuite {
           .through(decoder[IO, Foo2])
           .compile
           .toVector
-          .attempt
 
-        result.map(r => assert(r.isLeft && r.left.get.isInstanceOf[DecodingFailure]))
-      } else IO.pure(())
+        result.intercept[DecodingFailure].void: PropF[IO]
+      } else PropF.undecided[IO]
     }
   }
 
@@ -223,10 +197,9 @@ class Fs2Suite extends CirceSuite {
           .through(chunkDecoder[IO, Foo2])
           .compile
           .toVector
-          .attempt
-        result.map(r => assert(r.isLeft && r.left.get.isInstanceOf[DecodingFailure]))
+        result.intercept[DecodingFailure].void: PropF[IO]
       } else {
-        IO.pure(())
+        PropF.undecided[IO]
       }
     }
   }
@@ -236,13 +209,13 @@ class Fs2Suite extends CirceSuite {
       val stream = serializeFoos(mode, fooStream(fooStdStream, fooVector))
       val foos = (fooStdStream ++ fooVector).map(_.asJson)
 
-      stream.through(through).compile.toVector.attempt.map(r => assert(r === Right(foos.toVector)))
+      stream.through(through).compile.toVector.assertEquals(foos.toVector)
     }
 
   private def testParsingFailure(through: Pipe[IO, String, Json]) =
     PropF.forAllF { (stringStdStream: StdStream[String], stringVector: Vector[String]) =>
       val result =
-        Stream("}").append(stringStream(stringStdStream, stringVector)).through(through).compile.toVector.attempt
-      result.map(result => assert(result.isLeft && result.left.get.isInstanceOf[ParsingFailure]))
+        Stream("}").append(stringStream(stringStdStream, stringVector)).through(through).compile.toVector
+      result.intercept[ParsingFailure].void
     }
 }
