@@ -1,82 +1,30 @@
-ThisBuild / organization := "io.circe"
+ThisBuild / tlBaseVersion := "0.14"
+ThisBuild / startYear := Some(2017)
 
-val compilerOptions = Seq(
-  "-deprecation",
-  "-encoding",
-  "UTF-8",
-  "-feature",
-  "-language:existentials",
-  "-language:higherKinds",
-  "-unchecked",
-  "-Ywarn-dead-code",
-  "-Ywarn-numeric-widen"
-)
+ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 
-val circeVersion = "0.15.0-M1"
-val fs2Version = "3.2.4"
-val jawnVersion = "1.3.2"
+val circeVersion = "0.14.3"
+val fs2Version = "3.4.0"
+val jawnVersion = "1.4.0"
 val previousCirceFs2Version = "0.13.0"
 
-val munitVersion = "0.7.29"
-val catsEffectTestingVersion = "1.4.0"
-val scalacheckEffectVersion = "1.0.3"
-val munitEffectVersion = "1.0.3"
+val munitVersion = "1.0.0-M7"
+val scalacheckEffectVersion = "2.0.0-M2"
+val munitEffectVersion = "2.0.0-M3"
 
-val scala212 = "2.12.15"
-val scala213 = "2.13.8"
+val scala212 = "2.12.17"
+val scala213 = "2.13.10"
 
-ThisBuild / crossScalaVersions := Seq(scala212, scala213, "3.1.0")
+ThisBuild / scalaVersion := scala213
+ThisBuild / crossScalaVersions := Seq(scala212, scala213, "3.2.1")
 
-def priorTo2_13(scalaVersion: String): Boolean =
-  CrossVersion.partialVersion(scalaVersion) match {
-    case Some((2, minor)) if minor < 13 => true
-    case _                              => false
-  }
+lazy val root = tlCrossRootProject.aggregate(fs2)
 
-val baseSettings = Seq(
-  scalacOptions ++= compilerOptions,
-  scalacOptions ++= (
-    if (priorTo2_13(scalaVersion.value))
-      Seq(
-        "-Xfuture",
-        "-Yno-adapted-args",
-        "-Ywarn-unused-import"
-      )
-    else
-      Seq(
-        "-Ywarn-unused:imports"
-      )
-  ),
-  Compile / console / scalacOptions ~= {
-    _.filterNot(Set("-Ywarn-unused-import"))
-  },
-  Test / console / scalacOptions ~= {
-    _.filterNot(Set("-Ywarn-unused-import"))
-  },
-  coverageHighlighting := true,
-  coverageEnabled := (if (scalaVersion.value.startsWith("2.13")) coverageEnabled.value else false),
-  Compile / scalastyleSources ++= (Compile / unmanagedSourceDirectories).value
-)
-
-val allSettings = baseSettings ++ publishSettings
-val noPublishSettings = Seq(
-  publish := {},
-  publishLocal := {},
-  publishArtifact := false
-)
-
-val docMappingsApiDir = settingKey[String]("Subdirectory in site target directory for API docs")
-
-lazy val root = project.in(file(".")).settings(allSettings).settings(noPublishSettings).aggregate(fs2.jvm, fs2.js)
-
-lazy val fs2 = crossProject(JVMPlatform, JSPlatform)
+lazy val fs2 = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .crossType(CrossType.Pure)
   .in(file("fs2"))
-  .settings(allSettings)
-  .jsSettings(coverageEnabled := false)
   .settings(
-    moduleName := "circe-fs2",
-    mimaPreviousArtifacts := Set("io.circe" %% "circe-fs2" % previousCirceFs2Version),
+    name := "circe-fs2",
     libraryDependencies ++= Seq(
       "co.fs2" %%% "fs2-core" % fs2Version,
       "io.circe" %%% "circe-jawn" % circeVersion,
@@ -84,73 +32,10 @@ lazy val fs2 = crossProject(JVMPlatform, JSPlatform)
       "io.circe" %%% "circe-testing" % circeVersion % Test,
       "org.scalameta" %%% "munit-scalacheck" % munitVersion % Test,
       "org.typelevel" %%% "scalacheck-effect-munit" % scalacheckEffectVersion % Test,
-      "org.typelevel" %%% "munit-cats-effect-3" % munitEffectVersion % Test,
+      "org.typelevel" %%% "munit-cats-effect" % munitEffectVersion % Test,
       "org.typelevel" %%% "jawn-parser" % jawnVersion
-    ),
-    ghpagesNoJekyll := true,
-    docMappingsApiDir := "api",
-    addMappingsToSiteDir(Compile / packageDoc / mappings, docMappingsApiDir)
-  )
-
-lazy val publishSettings = Seq(
-  releaseCrossBuild := true,
-  releaseVcsSign := true,
-  releasePublishArtifactsAction := PgpKeys.publishSigned.value,
-  homepage := Some(url("https://github.com/circe/circe-fs2")),
-  licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
-  publishMavenStyle := true,
-  Test / publishArtifact := false,
-  pomIncludeRepository := { _ => false },
-  publishTo := {
-    val nexus = "https://oss.sonatype.org/"
-    if (isSnapshot.value)
-      Some("snapshots".at(nexus + "content/repositories/snapshots"))
-    else
-      Some("releases".at(nexus + "service/local/staging/deploy/maven2"))
-  },
-  /* Someday maybe Scaladoc will actually work on package object-only projects.
-  autoAPIMappings := true,
-  apiURL := Some(url("https://circe.github.io/circe-fs2/api/")),
-   */
-  scmInfo := Some(
-    ScmInfo(
-      url("https://github.com/circe/circe-fs2"),
-      "scm:git:git@github.com:circe/circe-fs2.git"
-    )
-  ),
-  developers := List(
-    Developer(
-      "travisbrown",
-      "Travis Brown",
-      "travisrobertbrown@gmail.com",
-      url("https://twitter.com/travisbrown")
     )
   )
-)
-
-credentials ++= (
-  for {
-    username <- Option(System.getenv().get("SONATYPE_USERNAME"))
-    password <- Option(System.getenv().get("SONATYPE_PASSWORD"))
-  } yield Credentials(
-    "Sonatype Nexus Repository Manager",
-    "oss.sonatype.org",
-    username,
-    password
+  .platformsSettings(JSPlatform, NativePlatform)(
+    tlVersionIntroduced := List("2.12", "2.13", "3").map(_ -> "0.14.1").toMap
   )
-).toSeq
-
-ThisBuild / githubWorkflowJavaVersions := Seq("adopt@1.8")
-// No auto-publish atm. Remove this line to generate publish stage
-ThisBuild / githubWorkflowPublishTargetBranches := Seq.empty
-ThisBuild / githubWorkflowBuild := Seq(
-  WorkflowStep.Sbt(
-    List("clean", "coverage", "test", "coverageReport", "scalafmtCheckAll"),
-    id = None,
-    name = Some("Test")
-  ),
-  WorkflowStep.Use(
-    UseRef.Public("codecov", "codecov-action", "e156083f13aff6830c92fc5faa23505779fbf649"), // v1.2.1
-    name = Some("Upload code coverage")
-  )
-)

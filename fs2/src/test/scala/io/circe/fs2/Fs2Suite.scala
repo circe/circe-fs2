@@ -1,3 +1,19 @@
+/*
+ * Copyright 2017 circe
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.circe.fs2
 
 import _root_.fs2.{ Pipe, Stream, text }
@@ -9,8 +25,10 @@ import io.circe.{ DecodingFailure, Json, ParsingFailure }
 import org.scalacheck.effect.PropF
 import org.typelevel.jawn.AsyncParser
 
+import scala.annotation.nowarn
 import scala.collection.immutable.{ Stream => StdStream }
 
+@nowarn
 class Fs2Suite extends CirceSuite {
   def fooStream(fooStdStream: StdStream[Foo], fooVector: Vector[Foo]): Stream[IO, Foo] =
     Stream.emits(fooStdStream).append(Stream.emits(fooVector))
@@ -53,18 +71,18 @@ class Fs2Suite extends CirceSuite {
   }
 
   test("byteArrayParser should parse bytes wrapped in array") {
-    testParser(AsyncParser.UnwrapArray, _.through(text.utf8Encode).through(byteArrayParser))
+    testParser(AsyncParser.UnwrapArray, _.through(text.utf8.encode).through(byteArrayParser))
   }
 
   test("byteStreamParser should parse bytes delimited by new lines") {
-    testParser(AsyncParser.ValueStream, _.through(text.utf8Encode).through(byteStreamParser))
+    testParser(AsyncParser.ValueStream, _.through(text.utf8.encode).through(byteStreamParser))
   }
 
   test("byteParser should parse single value") {
     PropF.forAllF { (foo: Foo) =>
       val stream = serializeFoos(AsyncParser.SingleValue, Stream.emit(foo))
       stream
-        .through(text.utf8Encode)
+        .through(text.utf8.encode)
         .through(byteParser(AsyncParser.SingleValue))
         .compile
         .toVector
@@ -78,25 +96,25 @@ class Fs2Suite extends CirceSuite {
       val stream = serializeFoos(AsyncParser.SingleValue, Stream.emit(foo))
 
       val parseOnce =
-        stream.through(text.utf8Encode).through(byteParser(AsyncParser.SingleValue)).compile.toVector
+        stream.through(text.utf8.encode).through(byteParser(AsyncParser.SingleValue)).compile.toVector
 
       (parseOnce.attempt >> parseOnce.attempt).map(r => assert(r == Right(Vector(foo.asJson))))
     }.check().map(r => assert(r.passed))
   }
 
   test("byteArrayParserC should parse bytes wrapped in array") {
-    testParser(AsyncParser.UnwrapArray, _.through(text.utf8Encode).chunks.through(byteArrayParserC))
+    testParser(AsyncParser.UnwrapArray, _.through(text.utf8.encode).chunks.through(byteArrayParserC))
   }
 
   test("byteStreamParserC should parse bytes delimited by new lines") {
-    testParser(AsyncParser.ValueStream, _.through(text.utf8Encode).chunks.through(byteStreamParserC))
+    testParser(AsyncParser.ValueStream, _.through(text.utf8.encode).chunks.through(byteStreamParserC))
   }
 
   test("byteParserC should parse single value") {
     PropF.forAllF { (foo: Foo) =>
       val stream = serializeFoos(AsyncParser.SingleValue, Stream.emit(foo))
       stream
-        .through(text.utf8Encode)
+        .through(text.utf8.encode)
         .chunks
         .through(byteParserC(AsyncParser.SingleValue))
         .compile
@@ -161,19 +179,19 @@ class Fs2Suite extends CirceSuite {
   }
 
   test("byteArrayParser should return ParsingFailure") {
-    testParsingFailure(_.through(text.utf8Encode).through(byteArrayParser))
+    testParsingFailure(_.through(text.utf8.encode).through(byteArrayParser))
   }
 
   test("byteStreamParser should return ParsingFailure") {
-    testParsingFailure(_.through(text.utf8Encode).through(byteStreamParser))
+    testParsingFailure(_.through(text.utf8.encode).through(byteStreamParser))
   }
 
   test("byteArrayParserC should return ParsingFailure") {
-    testParsingFailure(_.through(text.utf8Encode).chunks.through(byteArrayParserC))
+    testParsingFailure(_.through(text.utf8.encode).chunks.through(byteArrayParserC))
   }
 
   test("byteStreamParserC should return ParsingFailure") {
-    testParsingFailure(_.through(text.utf8Encode).chunks.through(byteStreamParserC))
+    testParsingFailure(_.through(text.utf8.encode).chunks.through(byteStreamParserC))
   }
 
   test("decoder should return DecodingFailure") {

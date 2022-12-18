@@ -1,10 +1,33 @@
+/*
+ * Copyright 2017 circe
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.circe.fs2
 
-import _root_.fs2.{ Chunk, Pipe, Pull, RaiseThrowable, Stream }
+import _root_.fs2.Chunk
+import _root_.fs2.Pipe
+import _root_.fs2.Pull
+import _root_.fs2.RaiseThrowable
+import _root_.fs2.Stream
 import cats.effect.Sync
-import io.circe.{ Json, ParsingFailure }
+import io.circe.Json
+import io.circe.ParsingFailure
 import io.circe.jawn.CirceSupportParser
-import org.typelevel.jawn.{ AsyncParser, ParseException }
+import org.typelevel.jawn.AsyncParser
+import org.typelevel.jawn.ParseException
+
 import scala.collection.Seq
 
 private[fs2] abstract class ParsingPipe[F[_]: Sync, S](supportParser: CirceSupportParser) extends Pipe[F, S, Json] {
