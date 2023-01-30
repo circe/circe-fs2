@@ -1,8 +1,6 @@
 ThisBuild / tlBaseVersion := "0.14"
 ThisBuild / startYear := Some(2017)
 
-ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
-
 val circeVersion = "0.14.3"
 val fs2Version = "3.5.0"
 val jawnVersion = "1.4.0"
@@ -17,6 +15,8 @@ val scala213 = "2.13.10"
 
 ThisBuild / scalaVersion := scala213
 ThisBuild / crossScalaVersions := Seq(scala212, scala213, "3.2.1")
+
+ThisBuild / tlCiReleaseBranches := Seq("master")
 
 lazy val root = tlCrossRootProject.aggregate(fs2)
 
