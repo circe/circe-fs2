@@ -1,5 +1,13 @@
 ThisBuild / tlBaseVersion := "0.14"
 ThisBuild / startYear := Some(2017)
+ThisBuild / developers ++= List(
+  Developer(
+    "travisbrown",
+    "Travis Brown",
+    "travisrobertbrown@gmail.com",
+    url("https://twitter.com/travisbrown")
+  )
+)
 
 val circeVersion = "0.14.3"
 val fs2Version = "3.5.0"
