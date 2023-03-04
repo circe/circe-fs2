@@ -9,7 +9,7 @@ ThisBuild / developers ++= List(
   )
 )
 
-val circeVersion = "0.14.3"
+val circeVersion = "0.14.5"
 val fs2Version = "3.5.0"
 val jawnVersion = "1.4.0"
 val previousCirceFs2Version = "0.13.0"
