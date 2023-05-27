@@ -5,6 +5,8 @@
 [![Gitter](https://img.shields.io/badge/gitter-join%20chat-green.svg)](https://gitter.im/circe/circe)
 [![Maven Central](https://img.shields.io/maven-central/v/io.circe/circe-fs2_2.12.svg)](https://maven-badges.herokuapp.com/maven-central/io.circe/circe-fs2_2.12)
 
+**Deprecated** this library is now in maintenance-mode. We recommend to use [fs2-data-json-circe](https://fs2-data.gnieh.org/documentation/json/libraries/#circe).
+
 This project provides support for using [fs2][fs2] for streaming JSON parsing and decoding with
 [circe][circe], a Scala library for encoding and decoding JSON to Scala types.
 
