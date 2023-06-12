@@ -14,7 +14,7 @@ val fs2Version = "3.7.0"
 val jawnVersion = "1.4.0"
 val previousCirceFs2Version = "0.13.0"
 
-val munitVersion = "1.0.0-M7"
+val munitVersion = "1.0.0-M8"
 val scalacheckEffectVersion = "2.0.0-M2"
 val munitEffectVersion = "2.0.0-M3"
 
