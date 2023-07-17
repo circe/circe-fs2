@@ -1,3 +1,7 @@
+### Deprecated
+
+This library is now in maintenance-mode. We recommend to use [fs2-data-json-circe](https://fs2-data.gnieh.org/documentation/json/libraries/#circe) which provides a [migration guide](https://fs2-data.gnieh.org/documentation/json/libraries/#migrating-from-circe-fs2).
+
 # circe-fs2
 
 [![Build](https://github.com/circe/circe-fs2/workflows/Continuous%20Integration/badge.svg)](https://github.com/circe/circe-fs2/actions)
