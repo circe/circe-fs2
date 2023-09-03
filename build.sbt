@@ -19,7 +19,7 @@ val scalacheckEffectVersion = "2.0.0-M2"
 val munitEffectVersion = "2.0.0-M3"
 
 val scala212 = "2.12.17"
-val scala213 = "2.13.10"
+val scala213 = "2.13.11"
 
 ThisBuild / scalaVersion := scala213
 ThisBuild / crossScalaVersions := Seq(scala212, scala213, "3.2.2")
