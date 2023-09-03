@@ -18,7 +18,7 @@ val munitVersion = "1.0.0-M7"
 val scalacheckEffectVersion = "2.0.0-M2"
 val munitEffectVersion = "2.0.0-M3"
 
-val scala212 = "2.12.17"
+val scala212 = "2.12.18"
 val scala213 = "2.13.10"
 
 ThisBuild / scalaVersion := scala213
